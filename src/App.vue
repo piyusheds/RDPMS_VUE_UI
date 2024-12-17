@@ -1,26 +1,50 @@
 <template>
-	<div class="app">
-		<!-- Sidebar -->
-		<Sidebar />
+	<div>
+		<div class="app-container" v-if="showLayout">
+			<div class="main">
+				<Sidebar v-if="showLayout" class="sidebar" />
+				<Navbar v-if="showLayout" class="navbar" />
+				<router-view />
+			</div>
+		</div>
 
-		<!-- Content -->
-		<router-view />
+		<Sign v-if="!showLayout" @signedIn="onSignedIn" />
+		<!-- <register v-if="showLayout" @Register="RegisterUp" /> -->
 	</div>
 </template>
 
 <script setup>
 import Sidebar from './components/Sidebar.vue'
+import Navbar from './components/Navbar.vue'
+import Sign from './components/Sign.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Register from './views/Register.vue'
+
+const showLayout = ref(false)
+
+const router = useRouter()
+
+const onSignedIn = () => {
+	showLayout.value = true
+	router.push('/home')
+}
+
+const RegisterUp = () => {
+	showLayout.value = true
+	router.push('/Register')
+}
+
+
 </script>
+
 
 <style lang="scss">
 :root {
-	--primary: #4ade80;
-	--primary-alt: #22c55e;
-	--grey: #64748b;
-	--dark: #1e293b;
-	--dark-alt: #334155;
-	--light: #f1f5f9;
-	--sidebar-width: 300px;
+	--primary: #009cff;
+	--light: #f3f6f9;
+	--dark: #191c24;
+	--sidebar-width: 300px; 
 }
 
 * {
@@ -44,14 +68,16 @@ button {
 
 .app {
 	display: flex;
+}
 
-	main {
-		flex: 1 1 0;
-		padding: 2rem;
+main {
+	flex: 1 1 0;
+	padding: 2rem;
+	padding-left: 16%;
+	padding-right: 0px; 
 
-		@media (max-width: 1024px) {
-			padding-left: 6rem;
-		}
+	@media (max-width: 1024px) {
+		padding-left: 6rem;
 	}
 }
 </style>

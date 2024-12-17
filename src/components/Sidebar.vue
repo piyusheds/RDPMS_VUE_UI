@@ -1,202 +1,346 @@
 <template>
-	<aside :class="`${is_expanded ? 'is-expanded' : ''}`">
-		<div class="logo">
-			<img :src="logoURL" alt="Vue" /> 
-		</div>
+	<aside>
+		<div class="sidebar pe-4 pb-3">
+			<nav class="navbar bg-light navbar-light">
+				<a href="index.html" class="navbar-brand mx-4 mb-3">
+					<h3 class="text-primary">HOWRAH</h3>
+				</a>
+				<div class="d-flex align-items-center ms-4 mb-4">
+					<div class="position-relative">
+						<img class="rounded-circle" src="src/assets/train_icon.png" alt="" style="width: 40px; height: 40px;">
+						<div
+							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+						</div>
+					</div>
+					<div class="ms-3">
+						<h6 class="mb-0" style="font-weight: 700;">EEC</h6>
+						<span>Admin</span>
+					</div>
+				</div>
+				<div class="navbar-nav w-100">
+					<RouterLink to="/" class="nav-item nav-link active"><i
+							class="fa fa-tachometer-alt me-2"></i>Dashboard</RouterLink>
+					<RouterLink to="/Home" class="nav-item nav-link">
+						<i class="fa fa-chart-line me-2"></i>Reports
+					</RouterLink>
 
-		<div class="menu-toggle-wrap">
-			<button class="menu-toggle" @click="ToggleMenu">
-				<span class="material-icons">keyboard_double_arrow_right</span>
-			</button>
-		</div>
+					<RouterLink to="/about" class="nav-item nav-link">
+						<i class="fa fa-bell me-2"></i>Alerts
+					</RouterLink>
 
-		<h3>Menu</h3>
-		<div class="menu">
-			<router-link to="/" class="button">
-				<span class="material-icons">home</span>
-				<span class="text">Home</span>
-			</router-link>
-			<router-link to="/about" class="button">
-				<span class="material-icons">description</span>
-				<span class="text">About</span>
-			</router-link>
-			<router-link to="/team" class="button">
-				<span class="material-icons">group</span>
-				<span class="text">Team</span>
-			</router-link>
-			<router-link to="/contact" class="button">
-				<span class="material-icons">email</span>
-				<span class="text">Contact</span>
-			</router-link>
-		</div>
+					<RouterLink to="/Signin" class="nav-item nav-link">
+						<i class="fa fa-cogs me-2"></i>Maintenance
+					</RouterLink>
 
-		<div class="flex"></div>
-		
-		<div class="menu">
-			<router-link to="/settings" class="button">
-				<span class="material-icons">settings</span>
-				<span class="text">Settings</span>
-			</router-link>
+					<RouterLink to="/Register" class="nav-item nav-link">
+						<i class="fa fa-info-circle me-2"></i>Version 1.0
+					</RouterLink>
+
+				</div>
+			</nav>
 		</div>
 	</aside>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import logoURL from '../assets/logo.png'
+// import { ref } from 'vue'
+// import logoURL from '../assets/logo.png'
+// import { RouterLink } from 'vue-router';
 
-const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
+// const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
-const ToggleMenu = () => {
-	is_expanded.value = !is_expanded.value
-	localStorage.setItem("is_expanded", is_expanded.value)
-}
+// const ToggleMenu = () => {
+// 	is_expanded.value = !is_expanded.value
+// 	localStorage.setItem("is_expanded", is_expanded.value)
+// }
+
+
+import { ref, onMounted } from 'vue';
+
+const is_expanded = ref(localStorage.getItem('is_expanded') === 'true');
+
+const toggleMenu = () => {
+  is_expanded.value = !is_expanded.value;
+  localStorage.setItem('is_expanded', is_expanded.value);
+};
+onMounted(() => {
+  if (is_expanded.value) {
+    document.querySelector('.sidebar').classList.add('open');
+  } else {
+    document.querySelector('.sidebar').classList.remove('open');
+  }
+});
+
 </script>
 
-<style lang="scss" scoped>
-aside {
-	display: flex;
-	flex-direction: column;
+<style scoped strict>
+:root {
+	--primary: #009cff;
+	--light: #f3f6f9;
+	--dark: #191c24;
+}
 
-	background-color: var(--dark);
-	color: var(--light);
+.back-to-top {
+	position: fixed;
+	display: none;
+	right: 45px;
+	bottom: 45px;
+	z-index: 99;
+}
 
-	width: calc(2rem + 32px);
-	overflow: hidden;
+/*** Spinner ***/
+#spinner {
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.5s ease-out, visibility 0s linear 0.5s;
+	z-index: 99999;
+}
+
+#spinner.show {
+	transition: opacity 0.5s ease-out, visibility 0s linear 0s;
+	visibility: visible;
+	opacity: 1;
+}
+
+/*** Button ***/
+.btn {
+	transition: 0.5s;
+}
+
+.btn.btn-primary {
+	color: #ffffff;
+}
+
+.btn-square {
+	width: 38px;
+	height: 38px;
+}
+
+.btn-sm-square {
+	width: 32px;
+	height: 32px;
+}
+
+.btn-lg-square {
+	width: 48px;
+	height: 48px;
+}
+
+.btn-square,
+.btn-sm-square,
+.btn-lg-square {
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: normal;
+	border-radius: 50px;
+}
+
+/*** Layout ***/
+.sidebar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 250px;
+	height: 100vh;
+	overflow-y: auto;
+	background: var(--light);
+	transition: 0.5s;
+	z-index: 999;
+}
+
+.content {
+	margin-left: 250px;
 	min-height: 100vh;
-	padding: 1rem;
+	background: #ffffff;
+	transition: 0.5s;
+}
 
-	transition: 0.2s ease-in-out;
-
-	.flex {
-		flex: 1 1 0%;
+@media (min-width: 992px) {
+	.sidebar {
+		margin-left: 0;
 	}
 
-	.logo {
-		margin-bottom: 1rem;
-
-		img {
-			width: 2rem;
-		}
+	.sidebar.open {
+		margin-left: -250px;
 	}
 
-	.menu-toggle-wrap {
-		display: flex;
-		justify-content: flex-end;
-		margin-bottom: 1rem;
-
-		position: relative;
-		top: 0;
-		transition: 0.2s ease-in-out;
-
-		.menu-toggle {
-			transition: 0.2s ease-in-out;
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-out;
-			}
-			
-			&:hover {
-				.material-icons {
-					color: var(--primary);
-					transform: translateX(0.5rem);
-				}
-			}
-		}
+	.content {
+		width: calc(100% - 250px);
 	}
 
-	h3, .button .text {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
+	.content.open {
+		width: 100%;
+		margin-left: 0;
+	}
+}
+
+@media (max-width: 991.98px) {
+	.sidebar {
+		margin-left: -250px;
 	}
 
-	h3 {
-		color: var(--grey);
-		font-size: 0.875rem;
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
+	.sidebar.open {
+		margin-left: 0;
 	}
 
-	.menu {
-		margin: 0 -1rem;
-
-		.button {
-			display: flex;
-			align-items: center;
-			text-decoration: none;
-
-			transition: 0.2s ease-in-out;
-			padding: 0.5rem 1rem;
-
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
-			.text {
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
-
-			&:hover {
-				background-color: var(--dark-alt);
-
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
-
-			&.router-link-exact-active {
-				background-color: var(--dark-alt);
-				border-right: 5px solid var(--primary);
-
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
-		}
+	.content {
+		width: 100%;
+		margin-left: 0;
 	}
+}
 
-	.footer {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
+/*** Navbar ***/
+.sidebar .navbar .navbar-nav .nav-link {
+	padding: 7px 20px;
+	color: var(--dark);
+	font-weight: 500;
+	border-left: 3px solid var(--light);
+	border-radius: 0 30px 30px 0;
+	outline: none;
+}
 
-		p {
-			font-size: 0.875rem;
-			color: var(--grey);
-		}
+.sidebar .navbar .navbar-nav .nav-link:hover,
+.sidebar .navbar .navbar-nav .nav-link.active {
+	color: var(--primary);
+	background: #ffffff;
+	border-color: var(--primary);
+}
+
+.sidebar .navbar .navbar-nav .nav-link i {
+	width: 40px;
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #ffffff;
+	border-radius: 40px;
+}
+
+.sidebar .navbar .navbar-nav .nav-link:hover i,
+.sidebar .navbar .navbar-nav .nav-link.active i {
+	background: var(--light);
+}
+
+.sidebar .navbar .dropdown-toggle::after {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	border: none;
+	content: "\f107";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	transition: 0.5s;
+}
+
+.sidebar .navbar .dropdown-toggle[aria-expanded="true"]::after {
+	transform: rotate(-180deg);
+}
+
+.sidebar .navbar .dropdown-item {
+	padding-left: 25px;
+	border-radius: 0 30px 30px 0;
+}
+
+.content .navbar .navbar-nav .nav-link {
+	margin-left: 25px;
+	padding: 12px 0;
+	color: var(--dark);
+	outline: none;
+}
+
+.content .navbar .navbar-nav .nav-link:hover,
+.content .navbar .navbar-nav .nav-link.active {
+	color: var(--primary);
+}
+
+.content .navbar .sidebar-toggler,
+.content .navbar .navbar-nav .nav-link i {
+	width: 40px;
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #ffffff;
+	border-radius: 40px;
+}
+
+.content .navbar .dropdown-toggle::after {
+	margin-left: 6px;
+	vertical-align: middle;
+	border: none;
+	content: "\f107";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	transition: 0.5s;
+}
+
+.content .navbar .dropdown-toggle[aria-expanded="true"]::after {
+	transform: rotate(-180deg);
+}
+
+@media (max-width: 575.98px) {
+	.content .navbar .navbar-nav .nav-link {
+		margin-left: 15px;
 	}
+}
 
-	&.is-expanded {
-		width: var(--sidebar-width);
+/*** Date Picker ***/
+.bootstrap-datetimepicker-widget.bottom {
+	top: auto !important;
+}
 
-		.menu-toggle-wrap {
-			top: -3rem;
-			
-			.menu-toggle {
-				transform: rotate(-180deg);
-			}
-		}
+.bootstrap-datetimepicker-widget .table * {
+	border-bottom-width: 0px;
+}
 
-		h3, .button .text {
-			opacity: 1;
-		}
+.bootstrap-datetimepicker-widget .table th {
+	font-weight: 500;
+}
 
-		.button {
-			.material-icons {
-				margin-right: 1rem;
-			}
-		}
+.bootstrap-datetimepicker-widget.dropdown-menu {
+	padding: 10px;
+	border-radius: 2px;
+}
 
-		.footer {
-			opacity: 0;
-		}
-	}
+.bootstrap-datetimepicker-widget table td.active,
+.bootstrap-datetimepicker-widget table td.active:hover {
+	background: var(--primary);
+}
 
-	@media (max-width: 1024px) {
-		position: absolute;
-		z-index: 99;
-	}
+.bootstrap-datetimepicker-widget table td.today::before {
+	border-bottom-color: var(--primary);
+}
+
+/*** Testimonial ***/
+.progress .progress-bar {
+	width: 0px;
+	transition: 2s;
+}
+
+/*** Testimonial ***/
+.testimonial-carousel .owl-dots {
+	margin-top: 24px;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.testimonial-carousel .owl-dot {
+	position: relative;
+	display: inline-block;
+	margin: 0 5px;
+	width: 15px;
+	height: 15px;
+	border: 5px solid var(--primary);
+	border-radius: 15px;
+	transition: 0.5s;
+}
+
+.testimonial-carousel .owl-dot.active {
+	background: var(--dark);
+	border-color: var(--primary);
 }
 </style>
