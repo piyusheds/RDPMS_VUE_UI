@@ -32,7 +32,7 @@
         </div>
         <div class="col-sm-6 col-xl-3">
           <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-            <i class="fa fa-broadcast-tower fa-3x text-primary" style="font-size: 2.5em"></i>
+            <i class="fa fa-traffic-light fa-3x text-primary" style="font-size: 2.5em"></i>
             <div class="ms-3">
               <p class="mb-2">Total signals</p>
               <h6 class="mb-0">40</h6>

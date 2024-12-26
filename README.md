@@ -6,17 +6,23 @@ Welcome to **RDPMS**, a comprehensive solution for remote diagnostics and predic
 
 ## Table of Contents
 
-1. [About the Project](#about-the-project)  
-2. [Features](#features)  
-3. [Technologies Used](#technologies-used)  
-4. [Prerequisites](#prerequisites)  
-5. [Getting Started](#getting-started)  
-6. [Project Scripts](#project-scripts)  
-7. [Folder Structure](#folder-structure)  
-8. [Building the Project](#building-the-project)  
-9. [Deployment](#deployment)  
-10. [Contributing](#contributing)  
-11. [License](#license)  
+- [Table of Contents](#table-of-contents)
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Install Dependencies](#2-install-dependencies)
+- [Project Scripts](#project-scripts)
+  - [Run Development Server](#run-development-server)
+  - [Build for Production](#build-for-production)
+  - [Run Linter](#run-linter)
+- [Folder Structure](#folder-structure)
+- [Building the Project](#building-the-project)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
 
 ## About the Project
@@ -157,12 +163,10 @@ We welcome contributions! To contribute:
    git push origin feature/YourFeatureName
    ```
 5. Open a pull request.  
-
-
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 Feel free to reach out with any questions or suggestions. Happy coding!
 
-Let me know if you need further modifications!
+Let me know if you need further modification

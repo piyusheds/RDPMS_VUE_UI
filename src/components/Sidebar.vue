@@ -7,7 +7,8 @@
 				</a>
 				<div class="d-flex align-items-center ms-4 mb-4">
 					<div class="position-relative">
-						<img class="rounded-circle" src="src/assets/train_icon.png" alt="" style="width: 40px; height: 40px;">
+						<img class="rounded-circle" src="src/assets/train_icon.png" alt=""
+							style="width: 40px; height: 40px;">
 						<div
 							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
 						</div>
@@ -18,59 +19,74 @@
 					</div>
 				</div>
 				<div class="navbar-nav w-100">
-					<RouterLink to="/" class="nav-item nav-link active"><i
-							class="fa fa-tachometer-alt me-2"></i>Dashboard</RouterLink>
+					<!-- Dashboard Icon -->
+					<RouterLink to="/Home" class="nav-item nav-link active">
+						<i class="fa fa-tachometer-alt me-2"></i>Dashboard
+					</RouterLink>
+
+					<!-- Reports Icon
 					<RouterLink to="/Home" class="nav-item nav-link">
 						<i class="fa fa-chart-line me-2"></i>Reports
-					</RouterLink>
+					</RouterLink> -->
 
+					<!-- Signal Icon (Traffic Signal) -->
 					<RouterLink to="/about" class="nav-item nav-link">
-						<i class="fa fa-bell me-2"></i>Alerts
+						<i class="fa fa-traffic-light me-2"></i>Signal
 					</RouterLink>
 
-					<RouterLink to="/Signin" class="nav-item nav-link">
-						<i class="fa fa-cogs me-2"></i>Maintenance
+					<!-- Forget Icon -->
+					<RouterLink to="/forget" class="nav-item nav-link">
+						<i class="fa fa-question-circle me-2"></i>Forget
 					</RouterLink>
 
+					<!-- Add Device Icon -->
+					<RouterLink to="/AddDeviceTable" class="nav-item nav-link">
+						<i class="fa fa-cogs me-2"></i>Add Device
+					</RouterLink>
+
+					<!-- User Table Icon -->
+					<RouterLink to="/UserTable" class="nav-item nav-link">
+						<i class="fa fa-users me-2"></i>User Table
+					</RouterLink>
+
+					<!-- Version Icon -->
 					<RouterLink to="/Register" class="nav-item nav-link">
 						<i class="fa fa-info-circle me-2"></i>Version 1.0
 					</RouterLink>
 
+					<button @click="logout" class="nav-item nav-link">
+						<i class="fa fa-sign-out-alt me-2"></i>Logout
+					</button>
 				</div>
+
 			</nav>
 		</div>
 	</aside>
 </template>
 
 <script setup>
-// import { ref } from 'vue'
-// import logoURL from '../assets/logo.png'
-// import { RouterLink } from 'vue-router';
-
-// const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
-
-// const ToggleMenu = () => {
-// 	is_expanded.value = !is_expanded.value
-// 	localStorage.setItem("is_expanded", is_expanded.value)
-// }
-
-
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const is_expanded = ref(localStorage.getItem('is_expanded') === 'true');
 
 const toggleMenu = () => {
-  is_expanded.value = !is_expanded.value;
-  localStorage.setItem('is_expanded', is_expanded.value);
+	is_expanded.value = !is_expanded.value;
+	localStorage.setItem('is_expanded', is_expanded.value);
 };
 onMounted(() => {
-  if (is_expanded.value) {
-    document.querySelector('.sidebar').classList.add('open');
-  } else {
-    document.querySelector('.sidebar').classList.remove('open');
-  }
+	if (is_expanded.value) {
+		document.querySelector('.sidebar').classList.add('open');
+	} else {
+		document.querySelector('.sidebar').classList.remove('open');
+	}
 });
 
+const router = useRouter();
+const logout = () => {
+	localStorage.removeItem('authToken');
+	router.push('/');
+};
 </script>
 
 <style scoped strict>
