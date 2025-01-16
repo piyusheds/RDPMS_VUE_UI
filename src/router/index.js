@@ -6,17 +6,14 @@ import AddDeviceTable from '../views/DeviceSection/AddDeviceTable.vue';
 import UserTable from '../views/Users/UserTable.vue';
 import Home from '../views/Home.vue';
 import About from '../views/About.vue';
-import LoginService from '../Services/LoginService';
 import AddDevices from '../views/DeviceSection/AddDevices.vue';
+import LoginService from '../Services/LoginService';
+import HistoryData from '../views/Data/HistoryData.vue';
+import LiveData from '../views/Data/LiveData.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    {
-      path: '/',
-      name: 'sign',
-      component: Sign,
-    },
     {
       path: '/register',
       name: 'Register',
@@ -31,25 +28,38 @@ const router = createRouter({
       path: '/UserTable',
       name: 'UserTable',
       component: UserTable,
-      meta: { requiresAuth: true }, // Protect this route
+      meta: { requiresAuth: true },
     },
     {
       path: '/AddDevices',
       name: 'AddDevices',
       component: AddDevices,
+      meta: { requiresAuth: true },
     },
     {
       path: '/AddDeviceTable',
       name: 'AddDeviceTable',
       component: AddDeviceTable,
-      meta: { requiresAuth: true }, // Protect this route
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/HistoryData',
+      name: 'HistoryData',
+      component: HistoryData,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/LiveData',
+      name: 'LiveData',
+      component: LiveData,
+      meta: { requiresAuth: true },
     },
     {
       path: '/home',
       name: 'home',
       component: Home,
-      meta: { requiresAuth: true }, // Protect this route
-    },  
+      meta: { requiresAuth: true },
+    },
     {
       path: '/forgetPsw',
       name: 'forgetpsw',
@@ -60,18 +70,45 @@ const router = createRouter({
       name: 'about',
       component: About,
     },
+    {
+      path: '/sign',
+      name: 'sign',
+      component: Sign,
+    },
   ],
 });
 
 // Navigation guard to check for authentication before accessing protected routes
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = LoginService.isAuthenticated(); // Check if the user is authenticated
+  const token = LoginService.getToken(); // Get token from auth service
+  const isAuthenticated = !!token;
 
-  // If the route requires authentication and the user is not authenticated, redirect to SignIn page
+  // If route requires authentication and user is not authenticated, redirect to sign page
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'sign' }); // Redirect to the SignIn page
+    next({ name: 'sign' }); // Redirect to the sign page if not authenticated
   } else {
-    next(); // Allow navigation
+    next(); // Proceed to the route
+  }
+});
+
+// Store the route in localStorage only if not already storing it to prevent the loop
+router.beforeEach((to, from, next) => {
+  if (to.path !== from.path) {
+    // Store the current route if it isn't already stored in localStorage
+    localStorage.setItem('currentRoute', to.fullPath);
+  }
+  next();
+});
+
+// Handle restoring the route after a page refresh, but only if authenticated
+router.afterEach((to) => {
+  const token = LoginService.getToken();
+  if (token) {
+    const storedRoute = localStorage.getItem('currentRoute');
+    if (storedRoute && to.fullPath !== storedRoute) {
+      // Prevent navigating to the stored route again if already on it
+      router.push(storedRoute); // Restore the previous route from localStorage
+    }
   }
 });
 

@@ -1,315 +1,295 @@
 <template>
     <main>
         <div class="container mt-4">
-            <div class="row">
-                <!-- Master Card -->
-                <div class="col-6">
-                    <b-card class="mb-3">
-                        <h4 class="mb-3">Master Label</h4>
+            <b-card class="shadow-lg rounded p-4 border-0 bg-light">
 
-                        <!-- IMEI/MAC Selection -->
-                        <b-form-group label="Select Master Type:" label-for="master-type" class="mb-4">
+                <h4 class="mb-4">Master and Station Details</h4>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <b-form-group label="Select Master Type:" label-for="master-type">
                             <b-form-select v-model="selectedMaster" :options="masterOptions" id="master-type"
-                                required></b-form-select>
+                                class="form-control " required>
+                            </b-form-select>
                         </b-form-group>
-
-                        <!-- IMEI/MAC Input -->
-                        <b-form-group v-if="selectedMaster" :label="`Enter ${selectedMaster}:`"
-                            :label-for="`${selectedMaster}-input`" class="mb-4">
-                            <b-form-input v-model="masterInput" :id="`${selectedMaster}-input`"
-                                :placeholder="`Enter ${selectedMaster}`" required></b-form-input>
+                    </div>
+                    <div class="col-md-4">
+                        <b-form-group :label="`Enter ${selectedMaster}:`" :label-for="master - input">
+                            <b-form-input v-model="masterInput" id="master-input"
+                                :placeholder="`Enter ${selectedMaster}`" class="form-control " required>
+                            </b-form-input>
                         </b-form-group>
-                    </b-card>
+                    </div>
+                    <div class="col-md-4">
+                        <b-form-group label="Station Name:" label-for="station-name">
+                            <b-form-input id="station-name" v-model="name" placeholder="Enter Station Name"
+                                class="form-control ">
+                            </b-form-input>
+                        </b-form-group>
+                    </div>
                 </div>
 
-                <!-- Station Information Card -->
-                <div class="col-6">
-                    <b-card class="mb-3">
-                        <h4 class="mb-3">Station Information</h4>
-
-                        <!-- Station Code -->
-                        <b-form-group label="Station Code:" label-for="station-code" class="mb-4">
-                            <b-form-input id="station-code" v-model="stationCode"
-                                placeholder="Enter Station Code"></b-form-input>
+                <!-- Second Row: Station Code, Location -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <b-form-group label="Station Code:" label-for="station-code">
+                            <b-form-input id="station-code" v-model="stationCode" placeholder="Enter Station Code"
+                                class="form-control ">
+                            </b-form-input>
                         </b-form-group>
-
-                        <!-- Location -->
-                        <b-form-group label="Location:" label-for="location" class="mb-4">
-                            <b-form-input id="location" v-model="location" placeholder="Enter Location"></b-form-input>
+                    </div>
+                    <div class="col-md-6">
+                        <b-form-group label="Location:" label-for="location">
+                            <b-form-input id="location" v-model="location" placeholder="Enter Location"
+                                class="form-control ">
+                            </b-form-input>
                         </b-form-group>
-                        <!-- Name -->
-
-                        <b-form-group label="Name:" label-for="name" class="mb-4">
-                            <b-form-input id="name" v-model="name" placeholder="Enter Name"></b-form-input>
-                        </b-form-group>
-                    </b-card>
+                    </div>
                 </div>
-            </div>
-
-            <b-card class="mt-3">
-                <h4 class="mb-3">Tree Structure</h4>
-                <ul class="tree">
-                    <li v-for="(hut, index) in huts" :key="index">
-                        <div class="div_styling">
-                            <b>{{ hut.name }}</b>
-                            <div>
-                                <b-button @click="addHut" size="sm">Add More HUT</b-button>
-                                <b-button @click="deleteHut(index)" variant="danger" size="sm"
-                                    style="margin-left: 15px;">Delete</b-button>
-                                <b-button @click="toggleHutDetails(index)" variant="primary" size="sm"
-                                    style="margin-left: 15px;">Toggle Details</b-button>
-                            </div>
-                        </div>
-
-                        <div v-show="hut.showDetails" class="hut-details">
-                            <b-form-group label="HUT ID:" class="mb-3 ml-3">
-                                <b-form-input v-model="hut.param" placeholder="Enter HUT"
-                                    style="width: 22%;"></b-form-input>
-                            </b-form-group>
-
-                            <div v-for="(device, deviceIndex) in deviceNames" :key="deviceIndex" class="DeviceName_div">
-                                <input v-model="device.name" placeholder="Device Name" />
-                                <b-form-select v-model="device.devicetype" :options="DeviceType"
-                                    id="Device_Type_DDL"></b-form-select>
-                                <input v-model="device.parameter" placeholder="Enter Device Id"
-                                    style="margin-left: 7px;" />
-
-                                <b-button v-if="deviceIndex === 0" @click="addDeviceRow" variant="outline-success"
-                                    size="sm" style="margin-left: 7px;">
-                                    Add Device
-                                </b-button>
-
-                                <b-button @click="removeDeviceRow(deviceIndex)" variant="outline-danger" size="sm"
-                                    style="margin-left: 7px;">
-                                    Remove
-                                </b-button>
-                            </div>
-
-                            <ul>
-                                <li v-for="(device, index) in addedDevices" :key="index">
-                                    <div class="d-flex align-items-center li_div"
-                                        style="width: 70%; justify-content: space-between;">
-                                        <div style="flex: 1;">
-                                            <b><strong>{{ device.devicetype }}</strong></b>
-                                        </div>
-                                        <div style="display: flex; justify-content: flex-end;">
-                                            <b-button @click="toggleDeviceDetails(index)" size="sm"
-                                                variant="outline-primary" style="margin-right: 8px;">
-                                                {{ device.detailsVisible ? 'Hide' : 'Show' }}
-                                                <b-icon
-                                                    :icon="device.detailsVisible ? 'chevron-down' : 'chevron-right'"></b-icon>
-                                            </b-button>
-                                            <b-button @click="removeDevice(index)" size="sm" variant="outline-danger">
-                                                Remove
-                                            </b-button>
-                                        </div>
-                                    </div>
-
-
-                                    <div v-show="device.detailsVisible" class="device-details-content">
-                                        <p><strong>Device ID:</strong> {{ device.parameter }}</p>
-                                        <p><strong>Device Name:</strong> {{ device.name }}</p>
-
-                                        <div v-if="device.devicetype === 'AC Volt'" class="ac-voltage-content">
-                                            <div class="d-flex align-items-center">
-                                                <b-form-group label="CH-1:" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device.acVoltageGears"
-                                                        :options="gearOptions" id="ac-voltage-gears-1"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device.acVoltageInput"
-                                                        placeholder="Enter Parameter"
-                                                        id="ac-voltage-input-1"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                            <div class="d-flex align-items-center">
-                                                <b-form-group label="CH-2:" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device.acVoltageGears2"
-                                                        :options="gearOptions" id="ac-voltage-gears-2"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device.acVoltageInput2"
-                                                        placeholder="Enter Parameter"
-                                                        id="ac-voltage-input-2"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                        </div>
-
-                                        <div v-if="device.devicetype === 'AC Current'" class="ac-current-content">
-                                            <div class="d-flex align-items-center" v-for="n in 6"
-                                                :key="'ac-current-' + n">
-                                                <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device['acCurrentGears' + n]"
-                                                        :options="gearOptions"
-                                                        :id="'ac-current-gears-' + n"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device['acCurrentInput' + n]"
-                                                        placeholder="Enter Parameter"
-                                                        :id="'ac-current-input-' + n"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                        </div>
-
-                                        <div v-if="device.devicetype === 'DC Volt'" class="dc-voltage-content">
-                                            <div class="d-flex align-items-center" v-for="n in 2"
-                                                :key="'dc-voltage-' + n">
-                                                <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device['dcVoltageGears' + n]"
-                                                        :options="gearOptions"
-                                                        :id="'dc-voltage-gears-' + n"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device['dcVoltageInput' + n]"
-                                                        placeholder="Enter Parameter"
-                                                        :id="'dc-voltage-input-' + n"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                        </div>
-                                        <div v-if="device.devicetype === 'DC Current'" class="dc-current-content">
-                                            <div v-for="n in 6" :key="'dc-current-' + n"
-                                                class="d-flex align-items-center">
-                                                <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device['dcCurrentGears' + n]"
-                                                        :options="gearOptions"
-                                                        :id="'dc-current-gears-' + n"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device['dcCurrentInput' + n]"
-                                                        placeholder="Enter Parameter"
-                                                        :id="'dc-current-input-' + n"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                        </div>
-
-                                        <div v-if="device.devicetype === 'Digital Input'" class="digital-input-content">
-                                            <div v-for="n in 16" :key="'digital-input-' + n"
-                                                class="d-flex align-items-center mb-3">
-                                                <b-form-group :label="'Input Option (' + n + '):'" class="mb-3 mr-3">
-                                                    <b-form-select v-model="device['digIpGears' + n]"
-                                                        :options="gearOptions"
-                                                        :id="'dig-ip-gears-' + n"></b-form-select>
-                                                </b-form-group>
-                                                <b-form-group label="Parameter:" class="mb-3">
-                                                    <b-form-input v-model="device['digIpInputs' + n]"
-                                                        placeholder="Enter Parameter"
-                                                        :id="'dig-ip-input-' + n"></b-form-input>
-                                                </b-form-group>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </li>
-
-                                <!-- <li>
-                                    <div class="d-flex justify-content-between align-items-center li_div">
-                                        <b><strong>Ac Current</strong></b>
-                                        <b-button @click="isAcCurrentVisible = !isAcCurrentVisible"
-                                            variant="outline-primary" size="sm">
-                                            {{ isAcCurrentVisible ? 'Hide' : 'Show' }}
-                                        </b-button>
-                                    </div>
-                                    <div v-show="isAcCurrentVisible">
-                                        <div v-for="(row, index) in 6" :key="index"
-                                            class="d-flex align-items-center mb-3">
-                                            <b-form-group :label="'CH-' + (index + 1) + ':'" class="mb-3 mr-3">
-                                                <b-form-select v-model="hut.acCurrentGears[index]"
-                                                    :options="gearOptions"></b-form-select>
-                                            </b-form-group>
-                                            <b-form-group label="Parameter:" class="mb-3">
-                                                <b-form-input v-model="hut.acCurrentInput[index]"
-                                                    placeholder="Enter Parameter"></b-form-input>
-                                            </b-form-group>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="d-flex justify-content-between align-items-center li_div">
-                                        <b><strong>DC Volt</strong></b>
-                                        <b-button @click="isDcVoltVisible = !isDcVoltVisible" variant="outline-primary"
-                                            size="sm">
-                                            {{ isDcVoltVisible ? 'Hide' : 'Show' }}
-                                        </b-button>
-                                    </div>
-                                    <div v-show="isDcVoltVisible">
-                                        <div class="d-flex align-items-center">
-                                            <b-form-group label="CH-1:" class="mb-3 mr-3">
-                                                <b-form-select v-model="hut.dcVoltGears"
-                                                    :options="gearOptions"></b-form-select>
-                                            </b-form-group>
-                                            <b-form-group label="Parameter:" class="mb-3">
-                                                <b-form-input v-model="hut.dcVoltInput"
-                                                    placeholder="Enter Parameter"></b-form-input>
-                                            </b-form-group>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <b-form-group label="CH-2:" class="mb-3 mr-3">
-                                                <b-form-select v-model="hut.dcVoltGears2"
-                                                    :options="gearOptions"></b-form-select>
-                                            </b-form-group>
-                                            <b-form-group label="Parameter:" class="mb-3">
-                                                <b-form-input v-model="hut.dcVoltInput2"
-                                                    placeholder="Enter Parameter"></b-form-input>
-                                            </b-form-group>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="d-flex justify-content-between align-items-center li_div">
-                                        <b><strong>Dc Current</strong></b>
-                                        <b-button @click="isDcCurrentVisible = !isDcCurrentVisible"
-                                            variant="outline-primary" size="sm">
-                                            {{ isDcCurrentVisible ? 'Hide' : 'Show' }}
-                                        </b-button>
-                                    </div>
-                                    <div v-show="isDcCurrentVisible">
-                                        <div v-for="(row, index) in 6" :key="index"
-                                            class="d-flex align-items-center mb-3">
-                                            <b-form-group :label="'CH-' + (index + 1) + ':'" class="mb-3 mr-3">
-                                                <b-form-select v-model="hut.dcCurrentGears[index]"
-                                                    :options="gearOptions"></b-form-select>
-                                            </b-form-group>
-                                            <b-form-group label="Parameter:" class="mb-3">
-                                                <b-form-input v-model="hut.dcCurrentInput[index]"
-                                                    placeholder="Enter Parameter"></b-form-input>
-                                            </b-form-group>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="d-flex justify-content-between align-items-center li_div">
-                                        <b><strong>Digital Input</strong></b>
-                                        <b-button @click="isDigIpVisible = !isDigIpVisible" variant="outline-primary"
-                                            size="sm">
-                                            {{ isDigIpVisible ? 'Hide' : 'Show' }}
-                                        </b-button>
-                                    </div>
-                                    <div v-show="isDigIpVisible">
-                                        <div v-for="(row, index) in 16" :key="index"
-                                            class="d-flex align-items-center mb-3">
-                                            <b-form-group :label="'Input Option (' + (index + 1) + '):'"
-                                                class="mb-3 mr-3">
-                                                <b-form-select v-model="hut.digIpGears[index]"
-                                                    :options="gearOptions"></b-form-select>
-                                            </b-form-group>
-                                            <b-form-group label="Parameter:" class="mb-3">
-                                                <b-form-input v-model="hut.digIpInputs[index]"
-                                                    placeholder="Enter Parameter"></b-form-input>
-                                            </b-form-group>
-                                        </div>
-                                    </div>
-                                </li>
-                                 -->
-
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
             </b-card>
-
         </div>
+
+
+        <b-card class="mt-3 shadow-lg rounded p-4 border-0 bg-light" style="margin: 0px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 class="mb-3">HUT Configuration</h4>
+                <b-button @click="addHut" size="sm">Add More HUT</b-button>
+            </div>
+            <ul class="tree">
+                <li v-for="(hut, index) in huts" :key="hut.hutId">
+                    <div class="div_styling">
+                        <b>{{ hut.name }}</b>
+                        <div>
+                            <b-button @click="deleteHut(index)" variant="danger" size="sm"
+                                style="margin-left: 15px;">Delete</b-button>
+                            <b-button @click="toggleHutDetails(index)" variant="primary" size="sm"
+                                style="margin-left: 15px;">Toggle Details</b-button>
+                        </div>
+                    </div>
+
+                    <div v-show="hut.showDetails" class="hut-details">
+                        <b-form-group label="HUT ID:" class="mb-3 ml-3">
+                            <b-form-input v-model="hut.param" placeholder="Enter HUT"
+                                style="width: 22%;"></b-form-input>
+                        </b-form-group>
+                        <div v-for="(device, deviceIndex) in hut.devices" :key="deviceIndex" class="DeviceName_div">
+                            <input v-model="device.name" placeholder="Device Name" />
+                            <b-form-select v-model="device.devicetype" :options="DeviceType"
+                                id="Device_Type_DDL"></b-form-select>
+                            <input v-model="device.deviceid" placeholder="Enter Device Id" style="margin-left: 7px;" />
+
+                            <b-button v-if="deviceIndex === 0" @click="addDeviceRow(hut.hutId)"
+                                variant="outline-success" size="sm" style="margin-left: 7px;">
+                                Add Device
+                            </b-button>
+
+                            <b-button @click="removeDeviceRow(hut.hutId, deviceIndex)" variant="outline-danger"
+                                size="sm" style="margin-left: 7px;"> Remove </b-button>
+                        </div>
+
+                        <ul :id="hut.hutId">
+                            <li v-for="(device, index) in hut.devices" :key="index">
+                                <div class="d-flex align-items-center li_div"
+                                    style="width: 70%; justify-content: space-between;">
+                                    <div style="flex: 1;">
+                                        <b><strong>{{ device.devicetype }}</strong></b>
+                                    </div>
+                                    <div style="display: flex; justify-content: flex-end;">
+                                        <b-button @click="toggleDeviceDetails(hut.hutId, index)" size="sm"
+                                            variant="outline-primary" style="margin-right: 8px;">
+                                            {{ device.detailsVisible ? 'Hide' : 'Show' }}
+                                            <b-icon
+                                                :icon="device.detailsVisible ? 'chevron-down' : 'chevron-right'"></b-icon>
+                                        </b-button>
+                                        <b-button @click="removeDevice(hut.hutId, index)" size="sm"
+                                            variant="outline-danger">
+                                            Remove
+                                        </b-button>
+                                    </div>
+                                </div>
+
+
+                                <div v-show="device.detailsVisible" class="device-details-content">
+                                    <p><strong>Device ID:</strong> {{ device.deviceid }}</p>
+                                    <p><strong>Device Name:</strong> {{ device.name }}</p>
+
+
+                                    <div v-if="device.devicetype === 'AC Volt'" class="ac-voltage-content">
+                                        <div class="d-flex align-items-center" v-for="n in 2" :key="'ac-voltage-' + n">
+                                            <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
+                                                <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
+                                            </b-form-group>
+
+                                            <!-- Gear Type -->
+                                            <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
+                                                style="margin-left:25px;">
+                                                <b-form-select v-model="device['acVoltageGears' + n]"
+                                                    :options="gearOptions"
+                                                    :id="'ac-voltage-gears-' + n"></b-form-select>
+                                            </b-form-group>
+
+                                            <!-- Value Range -->
+                                            <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
+                                                style="width: 21.5%;">
+                                                <div class="d-flex align-items-center">
+                                                    <b-form-input v-model="device['acVoltageValueRange' + n + 'Min']"
+                                                        placeholder="Min" :id="'ac-voltage-value-range-' + n + '-min'"
+                                                        style="width: 40%; margin-right: 4%;"></b-form-input>
+                                                    <span style="margin: 0 8px;">-</span>
+                                                    <b-form-input v-model="device['acVoltageValueRange' + n + 'Max']"
+                                                        placeholder="Max" :id="'ac-voltage-value-range-' + n + '-max'"
+                                                        style="width: 40%;"></b-form-input>
+                                                </div>
+                                            </b-form-group>
+
+                                            <!-- Parameter Name -->
+                                            <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
+                                                <b-form-input v-model="device['acVoltageInput' + n]"
+                                                    placeholder="Enter Parameter"
+                                                    :id="'ac-voltage-input-' + n"></b-form-input>
+                                            </b-form-group>
+                                        </div>
+                                    </div>
+
+
+                                    <div v-if="device.devicetype === 'AC Current'" class="ac-current-content">
+                                        <div class="d-flex align-items-center" v-for="n in 6" :key="'ac-current-' + n">
+                                            <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
+                                                <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3"></b-form-group>
+                                            </b-form-group>
+                                            <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
+                                                style="margin-left:25px;">
+                                                <b-form-select v-model="device['acCurrentGears' + n]"
+                                                    :options="gearOptions"
+                                                    :id="'ac-current-gears-' + n"></b-form-select>
+                                            </b-form-group>
+
+                                            <!-- Value Range-->
+                                            <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
+                                                style="width: 21.5%;">
+                                                <div class="d-flex align-items-center">
+                                                    <b-form-input v-model="device['acCurrentValueRange' + n + 'Min']"
+                                                        placeholder="Min" id="ac-current-value-range-min"
+                                                        style="width: 40%; margin-right: 4%;"></b-form-input>
+                                                    <span style="margin: 0 8px;">-</span>
+                                                    <b-form-input v-model="device['acCurrentValueRange' + n + 'Max']"
+                                                        placeholder="Max" id="ac-current-value-range-max"
+                                                        style="width: 40%;"></b-form-input>
+                                                </div>
+                                            </b-form-group>
+
+                                            <!-- Parameter Name -->
+                                            <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
+                                                <b-form-input v-model="device['acCurrentParam' + n]"
+                                                    placeholder="Enter Parameter"
+                                                    :id="'ac-current-input-' + n"></b-form-input>
+                                            </b-form-group>
+                                        </div>
+                                    </div>
+
+
+                                    <div v-if="device.devicetype === 'DC Volt'" class="dc-voltage-content">
+                                        <div class="d-flex align-items-center" v-for="n in 2" :key="'dc-voltage-' + n">
+                                            <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
+                                                <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
+                                            </b-form-group>
+                                            <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
+                                                style="margin-left:25px;">
+                                                <b-form-select v-model="device['dcVoltageGears' + n]"
+                                                    :options="gearOptions"
+                                                    :id="'dc-voltage-gears-' + n"></b-form-select>
+                                            </b-form-group>
+                                            <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
+                                                style="width: 21.5%;">
+                                                <div class="d-flex align-items-center">
+                                                    <b-form-input v-model="device['dcVoltageValueRange' + n + 'Min']"
+                                                        placeholder="Min" id="ac-voltage-value-range-1"
+                                                        style="width: 40%; margin-right: 4%;"></b-form-input>
+                                                    <span style="margin: 0 8px;">-</span>
+                                                    <b-form-input v-model="device['dcVoltageValueRange' + n + 'Max']"
+                                                        placeholder="Max" id="ac-voltage-value-range-2"
+                                                        style="width: 40%;"></b-form-input>
+                                                </div>
+                                            </b-form-group>
+                                            <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
+                                                <b-form-input v-model="device['dcVoltageInput' + n]"
+                                                    placeholder="Enter Parameter"
+                                                    :id="'dc-voltage-input-' + n"></b-form-input>
+                                            </b-form-group>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="device.devicetype === 'DC Current'" class="dc-current-content">
+                                        <div v-for="n in 6" :key="'dc-current-' + n" class="d-flex align-items-center">
+                                            <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
+                                                <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3"></b-form-group>
+                                            </b-form-group>
+                                            <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
+                                                style="margin-left:25px;">
+                                                <b-form-select v-model="device['dcCurrentGears' + hut.name + n]"
+                                                    :options="gearOptions"
+                                                    :id="'dc-current-gears-' + n"></b-form-select>
+                                            </b-form-group>
+                                            <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
+                                                style="width: 21.5%;">
+                                                <div class="d-flex align-items-center">
+                                                    <b-form-input
+                                                        v-model="device['dcCurrentValueRange' + hut.name + n + 'Min']"
+                                                        placeholder="Min" style="width: 40%; margin-right: 4%;"
+                                                        :id="'dc-range-input1-' + hut.name + n"></b-form-input>
+                                                    <span style="margin: 0 8px;">-</span>
+                                                    <b-form-input
+                                                        v-model="device['dcCurrentValueRange' + hut.name + n + 'Max']"
+                                                        placeholder="Max" style="width: 40%;"
+                                                        :id="'dc-range-input2-' + hut.name + n"></b-form-input>
+                                                </div>
+                                            </b-form-group>
+                                            <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
+                                                <b-form-input v-model="device['dcCurrentInput' + hut.name + n]"
+                                                    placeholder="Enter Parameter"></b-form-input>
+                                            </b-form-group>
+                                        </div>
+                                    </div>
+
+
+                                    <div v-if="device.devicetype === 'Digital Input'" class="digital-input-content">
+                                        <div v-for="n in 16" :key="'digital-input-' + n"
+                                            class="d-flex align-items-center mb-3">
+                                            <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom"
+                                                style="padding-bottom:0px !important;">
+                                                <b-form-group :label="'Input Option (' + n + '):'"
+                                                    class="mb-3 mr-3"></b-form-group>
+                                            </b-form-group>
+                                            <b-form-group :label="'Gear Type'" class="mb-3 mr-3 "
+                                                style="margin-left:25px;">
+                                                <b-form-select v-model="device['digitalInputGears' + n]"
+                                                    :options="gearOptions" :id="'dig-ip-gears-' + n"></b-form-select>
+                                            </b-form-group>
+                                            <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
+                                                <b-form-input v-model="device['digitalInputParam' + n]"
+                                                    placeholder="Enter Parameter"
+                                                    :id="'dig-ip-input-' + n"></b-form-input>
+                                            </b-form-group>
+                                            <b-form-group label="Channel Value:" class="mb-3 ml-3 div_margin_left">
+                                                <b-form-select v-model="device['digitalInputValue' + n]"
+                                                    :options="ChannelValueOptions" :id="'dig-ip-value-' + n">
+                                                </b-form-select>
+                                            </b-form-group>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <b-button variant="primary" @click="saveHutData">Save Hut</b-button>
+                <pre>{{ jsonData }}</pre>
+            </ul>
+        </b-card>
+
+
     </main>
 </template>
 
@@ -324,33 +304,33 @@ export default {
             isDigIpVisible: false,
             selectedMaster: null,
             masterOptions: ["IMEI", "MAC"],
-            masterInput: "",
+            masterInput: '',
 
             // Station Information
-            stationCode: "",
-            location: "",
-            name: "",
+            stationCode: '',
+            location: '',
+            name: '',
             deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
 
             // HUT Data
             huts: [{
                 name: 'HUT 1',
-                param: "",
+                param: '',
 
                 acVoltageGears: null,
-                acVoltageInput: "",
+                acVoltageInput: '',
                 acVoltageGears2: null,
-                acVoltageInput2: "",
+                acVoltageInput2: '',
                 acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(""),
+                acCurrentInput: Array(6).fill(''),
                 dcVoltGears: null,
-                dcVoltInput: "",
+                dcVoltInput: '',
                 dcVoltGears2: null,
-                dcVoltInput2: "",
+                dcVoltInput2: '',
                 dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(""),
+                dcCurrentInput: Array(6).fill(''),
                 digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(""),
+                digIpInputs: Array(16).fill(''),
                 showDetails: false
             }],
 
@@ -383,22 +363,22 @@ export default {
             const hutCount = this.huts.length + 1;
             const newHut = {
                 name: `HUT ${hutCount}`,
-                param: "",
+                param: '',
                 devicetype: null,
                 acVoltageGears: null,
-                acVoltageInput: "",
+                acVoltageInput: '',
                 acVoltageGears2: null,
-                acVoltageInput2: "",
+                acVoltageInput2: '',
                 acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(""),
+                acCurrentInput: Array(6).fill(''),
                 dcVoltGears: null,
-                dcVoltInput: "",
+                dcVoltInput: '',
                 dcVoltGears2: null,
-                dcVoltInput2: "",
+                dcVoltInput2: '',
                 dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(""),
+                dcCurrentInput: Array(6).fill(''),
                 digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(""),
+                digIpInputs: Array(16).fill(''),
                 showDetails: false
             };
             this.huts.push(newHut);
@@ -438,11 +418,25 @@ export default {
 </script> -->
 
 <script>
+import { useToast } from 'vue-toast-notification';
+import ApiGatewayServies from '../../Services/ApiGatewayServies';
 export default {
+
     data() {
         return {
             acVoltageVisible: false,
 
+            huts: [
+                {
+                    hutId: 1, name: "Hut 1", param: "", devices: [{
+                        name: '',
+                        devicetype: '',
+                        deviceid: '',
+                        parameter: '',
+                        detailsVisible: false,
+                    },], showDetails: false
+                },
+            ],
             deviceNames: [
                 { name: '', devicetype: '', parameter: '' } // Initial row
             ],
@@ -451,115 +445,350 @@ export default {
             isDcVoltVisible: false,
             isDcCurrentVisible: false,
             isDigIpVisible: false,
-            selectedMaster: null,
-            masterOptions: ["IMEI", "MAC"],
-            masterInput: "",
-            stationCode: "",
-            location: "",
-            name: "",
+            selectedMaster: "IMEI",
+            masterOptions: [
+                { value: '', text: "Select Master Type" },
+                { value: "IMEI", text: "IMEI" },
+                { value: "MAC", text: "MAC" },
+            ],
+            selectedMaster: '',
+            masterInput: '',
+            stationCode: '',
+            location: '',
+            name: '',
+            jsonData: '',
             deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
-            huts: [{
-                name: 'HUT 1',
-                param: "",
-                acVoltageVisible: false,
-                acVoltageGears: null,
-                acVoltageInput: "",
-                acVoltageGears2: null,
-                acVoltageInput2: "",
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(""),
-                dcVoltGears: null,
-                dcVoltInput: "",
-                dcVoltGears2: null,
-                dcVoltInput2: "",
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(""),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(""),
-                showDetails: false
-            }],
+            // huts: [{
+            //     name: 'HUT 1',
+            //     param: '',
+            //     acVoltageVisible: false,
+            //     acVoltageGears: null,
+            //     acVoltageInput: '',
+            //     acVoltageGears2: null,
+            //     acVoltageInput2: '',
+            //     acCurrentGears: Array(6).fill(null),
+            //     acCurrentInput: Array(6).fill(''),
+            //     dcVoltGears: null,
+            //     dcVoltInput: '',
+            //     dcVoltGears2: null,
+            //     dcVoltInput2: '',
+            //     dcCurrentGears: Array(6).fill(null),
+            //     dcCurrentInput: Array(6).fill(''),
+            //     digIpGears: Array(16).fill(null),
+            //     digIpInputs: Array(16).fill(''),
+            //     showDetails: false
+            // }],
             DeviceType: [
-                { value: null, text: "Select Device Type" },
+                { value: '', text: "Select Device Type" },
                 "AC Volt", "AC Current", "DC Volt", "DC Current", "Digital Input"
             ],
             gearOptions: [
-                { value: null, text: "Select Gears" },
+                { value: '', text: "Select Gears" },
                 "Signals", "Points", "DC Track Circuits", "Axle Counters", "AF Track Circuits",
                 "Level Crossing Gates", "Relays", "Electronic Interlocking", "Integrated Power Supply (IPS)",
                 "Battery Charger", "Earth Leakage Detector (ELD)", "Cables", "Block Instruments", "UFSBI",
                 "Ambient Temperature and Humidity"
             ],
+            ChannelValueOptions: [
+                { value: '', text: "Select Channel Value" },
+                { value: true, text: "True" },
+                { value: false, text: "False" },
+            ],
+            hutData: {
+                masterDetails: {
+                    sno: 0,
+                    masterType: '',
+                    imeimac: '',
+                    stationCode: '',
+                    stationName: '',
+                    location: '',
+                },
+                hutConfiguration: [],
+                digitalInputTable: [],
+                dcVoltTable: [],
+                dcCurrentTable: [],
+                acVoltageTable: [],
+                acCurrentTable: [],
+            },
         };
     },
+
+
+
     methods: {
+
         addHut() {
-            const hutCount = this.huts.length + 1;
+            const newHutId = this.huts.length + 1;
             this.huts.push({
-                name: `HUT ${hutCount}`,
+                hutId: newHutId,
+                name: `Hut ${newHutId}`,
                 param: "",
-                acVoltageVisible: false,
-                acVoltageGears: null,
-                acVoltageInput: "",
-                acVoltageGears2: null,
-                acVoltageInput2: "",
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(""),
-                dcVoltGears: null,
-                dcVoltInput: "",
-                dcVoltGears2: null,
-                dcVoltInput2: "",
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(""),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(""),
-                showDetails: false
+                devices: [{
+                    name: '',
+                    devicetype: '',
+                    deviceId: '',
+                    detailsVisible: false,
+                },],
+                showDetails: false,
             });
         },
+
+        async saveHutData() {
+            this.loading = true;
+            const toast = useToast();
+
+            const dataToSend = {
+                masterDetails: {
+                    sno: 0,
+                    masterType: this.selectedMaster || "defaultType",
+                    imeiMac: this.masterInput || "defaultImeiMac",
+                    stationCode: this.stationCode || "defaultStationCode",
+                    stationName: this.name || "defaultName",
+                    location: this.location || "defaultLocation",
+                },
+                hutConfiguration: this.huts.flatMap((hut) =>
+                    hut.devices.map((device) => ({
+                        sno: 0,
+                        imeiMac: this.masterInput,
+                        hutId: hut.param,           // Reference the hut's param
+                        deviceType: device.devicetype,  // Access device's devicetype
+                        deviceName: device.name,    // Access device's name
+                        deviceId: device.deviceid,  // Access device's deviceid
+                    }))
+                ),
+                digitalInputTable: [],
+                dcVoltageTables: [],
+                dcCurrentTable: [],
+                acVoltageTable: [],
+                acCurrentTable: [],
+            };
+
+            this.huts.forEach((hut) => {
+                hut.devices.forEach((device) => {
+                    console.log("Device Type:", device.devicetype);
+                    if (device.devicetype === "AC Volt") {
+                        for (let n = 1; n <= 2; n++) {
+                            const channelData = {
+                                sno: 0,  
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: `CH${n}`,
+                                gearType: device[`acVoltageGears${n}`] || "AC Volt",  // Default value if not set
+                                channelValueRange1: device[`acVoltageValueRange${n}Min`] || null,  // Min value
+                                channelValueRange2: device[`acVoltageValueRange${n}Max`] || null,  // Max value
+                                channelUnit: "V",  // Voltage unit
+                                channelsParameter: device[`acVoltageInput${n}`] || "",  // Input parameter
+                            };
+
+                            dataToSend.acVoltageTable.push(channelData);
+                        }
+                    }
+                    else if (device.devicetype === "DC Volt") {
+                        const channelData = [];
+
+                        for (let n = 1; n <= 2; n++) {
+                            const channel = {
+                                channelNumber: String(n),
+                                gearType: "DC Voltage",
+                                channelsParameter: "Voltage Parameter",
+                                channelValueRange1: device[`dcVoltageValueRange${n}Min`],
+                                channelValueRange2: device[`dcVoltageValueRange${n}Max`],
+                                channelUnit: "V",
+                                parameterName: device[`dcVoltageInput${n}`],
+                            };
+
+                            channelData.push(channel);
+                        }
+
+                        channelData.forEach(channel => {
+                            dataToSend.dcVoltageTables.push({
+                                sno: 0,
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: channel.channelNumber,
+                                gearType: channel.gearType,
+                                channelsParameter: channel.channelsParameter,
+                                channelValueRange1: channel.channelValueRange1,
+                                channelValueRange2: channel.channelValueRange2,
+                                channelUnit: channel.channelUnit,
+                                parameterName: channel.parameterName,
+                            });
+                        });
+                    }
+                    else if (device.devicetype === "DC Current") {
+                        for (let n = 1; n <= 6; n++) {
+                            const channelData = {
+                                sno: 0,
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: `CH${n}`,
+                                gearType: device[`dcCurrentGears${hut.name}${n}`] || "DC Current",
+                                channelValueRange1: device[`dcCurrentValueRange${hut.name}${n}Min`] || null,
+                                channelValueRange2: device[`dcCurrentValueRange${hut.name}${n}Max`] || null,
+                                channelUnit: "A",
+                                channelsParameter: device[`dcCurrentInput${hut.name}${n}`] || "",
+                            };
+
+                            dataToSend.dcCurrentTable.push(channelData);
+                        }
+                    }
+
+                    else if (device.devicetype === "AC Current") {
+                        for (let n = 1; n <= 6; n++) {
+                            // Create a separate object for each channe
+                            const channelData = {
+                                sno: 0,
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: `CH${n}`,
+                                gearType: device[`acCurrentGears${n}`] || "AC Current",
+                                // channelsParameter: "Current Parameter",
+                                channelValueRange1: device[`acCurrentValueRange${n}Min`] || null,
+                                channelValueRange2: device[`acCurrentValueRange${n}Max`] || null,
+                                channelUnit: "A",
+                                channelsParameter: device[`acCurrentParam${n}`] || "",
+                            };
+
+                            dataToSend.acCurrentTable.push(channelData);
+                        }
+                    }
+                    else if (device.devicetype === "Digital Input") {
+                        for (let n = 1; n <= 16; n++) {
+                            const channelData = {
+                                sno: 0,
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: `CH${n}`, // Convert channel number to string
+                                gearType: device[`digitalInputGears${n}`] || "Digital Input",
+                                channelsParameter: device[`digitalInputParam${n}`] || "Digital Parameter",
+                                channelValue: device[`digitalInputValue${n}`] !== '' ? device[`digitalInputValue${n}`] : null, // Send as true/false/null
+                            };
+
+                            // Push each channel as a separate object
+                            dataToSend.digitalInputTable.push(channelData);
+                        }
+                    }
+                });
+            });
+
+            console.log(dataToSend);
+
+            try {
+                // Retrieve token from localStorage
+                const token = localStorage.getItem('authToken');
+
+                // Make sure token is present before proceeding
+                if (!token) {
+                    throw new Error('Authentication token is missing.');
+                }
+
+                // Add token to the request headers
+                const response = await ApiGatewayServies.post('Master', dataToSend, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`, // Attach token here
+                    },
+                });
+
+                toast.success(response.data || 'HUT Data submitted successfully!');
+                // Optionally reset form here if needed
+                this.resetForm();
+            } catch (error) {
+                console.error('Error:', error);
+                toast.error(error.response?.data || 'An unexpected error occurred while saving HUT data.');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+
+        // deleteHut(index) {
+        //     this.huts.splice(index, 1);
+        // },
         deleteHut(index) {
             this.huts.splice(index, 1);
+
+            // Rassign names to all huts in ascending order
+            this.huts.forEach((hut, i) => {
+                hut.name = `HUT ${i + 1}`; // Set the name based on the index (1-based)
+            });
         },
         toggleHutDetails(index) {
             this.huts[index].showDetails = !this.huts[index].showDetails;
         },
-        addDeviceRow() {
-            this.deviceNames.push({ name: '', parameter: '' });
-        },
+        // addDeviceRow() {
+        //     this.deviceNames.push({ name: '', parameter: '' });
+        // },
         removeDeviceRow(index) {
             this.deviceNames.splice(index, 1);
         },
         toggleACVoltageDetails(index) {
             this.huts[index].acVoltageVisible = !this.huts[index].acVoltageVisible;
         },
+        // addDeviceRow(hutName) {
+        //     // Find the hut by name
+        //     const hut = this.huts.find(h => h.name === hutName);
 
-        addDeviceRow() {
-            const newDevice = {
-                ...this.deviceNames[0],
+        //     if (hut) {
+        //         // Ensure that the hut has an addedDevices array
+        //         if (!hut.addedDevices) {
+        //             hut.addedDevices = [];
+        //         }
+
+        //         // Create the new device object
+        //         const newDevice = {
+        //             devicename: '',
+        //             devicetype: '',
+        //             parameter: '',
+        //             detailsVisible: false,
+        //             acVoltageGears: '',
+        //             acVoltageInput: '',
+        //             acVoltageGears2: '',
+        //             acVoltageInput2: ''
+        //         };
+
+        //         // Push the new device to the appropriate hut's addedDevices array
+        //         hut.addedDevices.push(newDevice);
+
+        //         // Clear the input fields (optional)
+        //         this.deviceNames[0].name = '';
+        //         this.deviceNames[0].devicetype = '';
+        //         this.deviceNames[0].parameter = '';
+        //     }
+        // },
+
+        addDeviceRow(hutId) {
+            const hut = this.huts.find((h) => h.hutId === hutId);
+            hut.devices.push({
+                name: '',
+                devicetype: '',
+                parameter: '',
                 detailsVisible: false,
-                acVoltageGears: '', // Additional fields for AC Current
-                acVoltageInput: '',
-                acVoltageGears2: '',
-                acVoltageInput2: ''
-            };
-            this.addedDevices.push(newDevice);
+            });
+        },
 
-            // Clear the input fields
-            this.deviceNames[0].name = '';
-            this.deviceNames[0].devicetype = '';
-            this.deviceNames[0].parameter = '';
+
+        removeDeviceRow(hutId, deviceIndex) {
+            const hut = this.huts.find((h) => h.hutId === hutId);
+            hut.devices.splice(deviceIndex, 1);
         },
-        removeDeviceRow(index) {
-            if (index === 0 && this.deviceNames.length === 1) {
-                this.deviceNames[0] = { name: '', devicetype: '', parameter: '' }; // Clear the fields
-            } else {
-                this.deviceNames.splice(index, 1);
-            }
+        toggleDeviceDetails(hutId, index) {
+            const hut = this.huts.find((h) => h.hutId === hutId);
+            hut.devices[index].detailsVisible = !hut.devices[index].detailsVisible;
         },
-        toggleDeviceDetails(index) {
-            this.addedDevices[index].detailsVisible = !this.addedDevices[index].detailsVisible;
+        removeDevice(hutId, index) {
+            this.removeDeviceRow(hutId, index);
         },
-        removeDevice(index) {
-            this.addedDevices.splice(index, 1);
-        }
     }
 };
 </script>
@@ -573,7 +802,7 @@ export default {
 }
 
 .tree ul::before {
-    content: "";
+    content: '';
     border-left: 1px solid #ccc;
     position: absolute;
     top: 0;
@@ -588,12 +817,16 @@ export default {
 }
 
 .tree li::before {
-    content: "";
+    content: '';
     border-top: 1px solid #ccc;
     position: absolute;
     top: 15px;
     left: 0;
     width: 20px;
+}
+
+.padding_bottom .bv-no-focus-ring {
+    padding-bottom: 3px !important;
 }
 
 #Delete_Btn {
@@ -605,7 +838,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 64%;
+    /* width: 64%; */
 }
 
 .AddBtn_width {
@@ -642,5 +875,54 @@ export default {
 #Device_Type_DDL {
     width: 22%;
     margin-left: 8px;
+}
+
+
+.tree {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.div_styling {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.hut-details {
+    margin-left: 2rem;
+    padding: 1rem;
+    border-left: 2px solid #007bff;
+}
+
+.DeviceName_div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.DeviceName_div input {
+    margin-right: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#Device_Type_DDL {
+    margin-right: 1rem;
+}
+
+button {
+    margin-left: 7px;
+}
+
+.div_margin_left {
+    margin-left: 30px;
 }
 </style>

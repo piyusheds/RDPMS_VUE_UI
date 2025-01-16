@@ -51,13 +51,8 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
 import LoginService from '../Services/LoginService';
 
-// import { onMounted } from 'vue';
-// import { useRouter } from 'vue-router';
-
-const router = useRouter();
 export default {
   data() {
     return {
@@ -77,11 +72,20 @@ export default {
 
         const response = await LoginService.login(credentials);
 
-        const token = response;
-        console.log('Token:', token); 
+        const token = response; // Assuming LoginService returns the token
+
+        console.log('Token:', token);
 
         if (token) {
-          // this.$router.push({ name: 'home' });
+          // Store the token (e.g., in localStorage)
+          localStorage.setItem('authToken', token);
+
+          // Optionally, you could store token in Vuex or manage session states
+
+          // Redirect to the home page after successful login
+          this.$router.push({ name: 'home' }); // Redirect to 'home' page
+
+          // Emit an event or handle the logic here
           this.$emit('signedIn');
         } else {
           console.error('Login failed: No token received');
@@ -89,8 +93,7 @@ export default {
       } catch (error) {
         console.error('Login failed:', error);
       }
-    }
-
+    },
   },
 };
 </script>

@@ -182,7 +182,7 @@ export default {
                 railwayStationCode: '',
                 railwayStationName: '',
                 railwayDivision: '',
-                personName: '',
+                userName: '',
                 companyName: '',
                 departmentName: '',
                 designation: '',
@@ -206,7 +206,7 @@ export default {
 
             // Prepare data to send to backend
             const formDataToSend = {
-                personName: this.formData.personName,
+                userName: this.formData.personName,
                 companyName: this.formData.companyName,
                 railwayDivision: this.formData.railwayDivision,
                 railwayStationName: this.formData.railwayStationName,
@@ -217,14 +217,14 @@ export default {
                 email: this.formData.email,
                 mobileNo: this.formData.mobileNo,
                 userId: this.formData.userId,
-                passwordHash: this.formData.password,
+                password: this.formData.password,
                 createdAt: new Date().toISOString(), 
                 isActive: true,
             };
 
             try {
                 // Call the API to register user
-                const response = await ApiGatewayServies.post('UserRegister/register', formDataToSend, {
+                const response = await ApiGatewayServies.post('User/register', formDataToSend, {
                     headers: { 'Content-Type': 'application/json' },
                 });
 

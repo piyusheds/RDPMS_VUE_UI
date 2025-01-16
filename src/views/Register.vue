@@ -208,7 +208,7 @@ export default {
 
             try {
                 // Call the POST method from ApiGatewayServies
-                const response = await ApiGatewayServies.post('register', this.formData);
+                const response = await ApiGatewayServies.post('User/register', this.formData);
 
                 // Handle success response
                 this.successMessage = 'Form submitted successfully!';

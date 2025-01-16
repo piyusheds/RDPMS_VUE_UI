@@ -20,45 +20,45 @@
 				</div>
 				<div class="navbar-nav w-100">
 					<!-- Dashboard Icon -->
-					<RouterLink to="/Home" class="nav-item nav-link active">
+					<RouterLink to="/Home" class="nav-item nav-link" active-class="active">
 						<i class="fa fa-tachometer-alt me-2"></i>Dashboard
 					</RouterLink>
 
-					<!-- Reports Icon
-					<RouterLink to="/Home" class="nav-item nav-link">
-						<i class="fa fa-chart-line me-2"></i>Reports
-					</RouterLink> -->
+					<!-- Live Data Icon -->
+					<RouterLink to="/LiveData" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-signal me-2"></i>Live Data
+					</RouterLink>
 
-					<!-- Signal Icon (Traffic Signal) -->
-					<RouterLink to="/about" class="nav-item nav-link">
+					<!-- History Data Icon -->
+					<RouterLink to="/HistoryData" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-history me-2"></i>History Data
+					</RouterLink>
+
+					<!-- Signal Icon -->
+					<RouterLink to="/about" class="nav-item nav-link" active-class="active">
 						<i class="fa fa-traffic-light me-2"></i>Signal
 					</RouterLink>
 
-					<!-- Forget Icon -->
-					<RouterLink to="/forget" class="nav-item nav-link">
-						<i class="fa fa-question-circle me-2"></i>Forget
-					</RouterLink>
-
 					<!-- Add Device Icon -->
-					<RouterLink to="/AddDeviceTable" class="nav-item nav-link">
+					<RouterLink to="/AddDeviceTable" class="nav-item nav-link" active-class="active">
 						<i class="fa fa-cogs me-2"></i>Add Device
 					</RouterLink>
 
 					<!-- User Table Icon -->
-					<RouterLink to="/UserTable" class="nav-item nav-link">
-						<i class="fa fa-users me-2"></i>User Table
+					<RouterLink to="/UserTable" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-user-friends me-2"></i>User Table
 					</RouterLink>
 
-					<!-- Version Icon -->
-					<RouterLink to="/Register" class="nav-item nav-link">
-						<i class="fa fa-info-circle me-2"></i>Version 1.0
+					<!-- Forget Icon -->
+					<RouterLink to="/forget" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-question-circle me-2"></i>Forget
 					</RouterLink>
 
-					<button @click="logout" class="nav-item nav-link">
+					<!-- Logout -->
+					<a @click="logout" class="nav-item nav-link">
 						<i class="fa fa-sign-out-alt me-2"></i>Logout
-					</button>
+					</a>
 				</div>
-
 			</nav>
 		</div>
 	</aside>
@@ -66,7 +66,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 
 const is_expanded = ref(localStorage.getItem('is_expanded') === 'true');
 
@@ -86,6 +86,7 @@ const router = useRouter();
 const logout = () => {
 	localStorage.removeItem('authToken');
 	router.push('/');
+	window.location.reload();
 };
 </script>
 
@@ -94,6 +95,12 @@ const logout = () => {
 	--primary: #009cff;
 	--light: #f3f6f9;
 	--dark: #191c24;
+}
+
+.nav-item.nav-link.active {
+  color: #007bff;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .back-to-top {
