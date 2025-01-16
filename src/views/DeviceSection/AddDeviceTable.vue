@@ -13,6 +13,9 @@
 
     <!-- Table -->
     <b-table :items="filteredItems" :fields="fields" responsive="sm" bordered hover striped>
+      <template #cell(sno)="row">
+        {{ row.index + 1 }}
+      </template>
       <template #cell(active_status)="row">
         <b-badge :variant="row.value ? 'success' : 'danger'">
           {{ row.value ? 'Active' : 'Inactive' }}
@@ -22,23 +25,37 @@
         <b-button variant="primary" size="sm" @click="editItem(row.item)">
           Edit
         </b-button>
-        <b-button variant="danger" size="sm" class="ml-2" @click="showConfirmation(row.item)">
+        <b-button variant="danger" size="sm" class="ml-2" style="margin-left: 10px;" @click="showConfirmation(row.item)">
           Delete
         </b-button>
       </template>
     </b-table>
 
-    <!-- Confirmation Modal for Deletion -->
-    <b-modal v-model="showModal" title="Confirm Deletion" ok-title="Delete" cancel-title="Cancel" @ok="deleteConfirmed" @cancel="hideModal">
-      <p class="my-4">
-        Are you sure you want to delete IMEI/MAC: {{ itemToDelete?.imeimac }}?
-      </p>
-    </b-modal>
 
+    <!-- Confirmation Modal for Deletion -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete IMEI/MAC: {{ itemToDelete?.imeimac }}?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="hideModal">Cancel</button>
+            <button type="button" class="btn btn-danger" @click="deleteConfirmed">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
+
 <script>
 import ApiGatewayServices from "../../Services/ApiGatewayServies";
+import { useToast } from "vue-toastification"; // Import useToast
 
 export default {
   data() {
@@ -53,6 +70,8 @@ export default {
         "West",
       ],
       fields: [
+        { key: "sno", label: "S.No" },
+        { key: "masterType", label: "Master Type" },
         { key: "imeimac", label: "IMEI/MAC" },
         { key: "stationCode", label: "Station Code" },
         { key: "stationName", label: "Station Name" },
@@ -94,7 +113,9 @@ export default {
         console.log("API Response:", response.data);
 
         if (response.data && Array.isArray(response.data.masterDetails)) {
-          this.items = response.data.masterDetails.map((device) => ({
+          this.items = response.data.masterDetails.map((device, index) => ({
+            sno: index + 1,  // Add Sno based on the index
+            masterType: device.masterType,
             imeimac: device.imeimac,
             stationCode: device.stationCode,
             stationName: device.stationName,
@@ -109,14 +130,16 @@ export default {
       }
     },
     showConfirmation(item) {
-      console.log("showConfirmation method called"); // Debugging line
       this.itemToDelete = item; // Set the item to delete
       this.showModal = true; // Open the confirmation modal
-      console.log("showModal after setting:", this.showModal); // Debugging line
+      this.$nextTick(() => {
+        const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        modal.show(); // Show the Bootstrap modal
+      });
     },
     hideModal() {
-      this.itemToDelete = null; // Clear the item
       this.showModal = false; // Close the modal
+      this.itemToDelete = null; // Clear the item
     },
     async deleteConfirmed() {
       if (this.itemToDelete) {
@@ -125,16 +148,28 @@ export default {
           console.log("API URL:", url);
           const response = await ApiGatewayServices.delete(url);
           console.log("Delete Response:", response.data);
+
+          // Remove the item from the list
           this.items = this.items.filter((item) => item.imeimac !== this.itemToDelete.imeimac);
-          alert(`IMEI/MAC ${this.itemToDelete.imeimac} deleted successfully.`);
+
+          // Show success toast
+          const toast = useToast();
+          toast.success(`"${this.itemToDelete.masterType}" "${this.itemToDelete.imeimac}" deleted successfully.`,{
+            timeout: 2000,
+          });
+
+          // Close the modal using Bootstrap Modal API
+          const modal = bootstrap.Modal.getInstance(document.getElementById("deleteModal"));
+          modal.hide();  // Hide the modal
+
         } catch (error) {
           console.error("Error during delete operation:", error);
           alert("Failed to delete the item. Please try again.");
         } finally {
-          this.hideModal();
+          this.itemToDelete = null; // Clear the item
         }
       }
-    },
+    }
   },
   mounted() {
     this.fetchItems();
@@ -145,8 +180,19 @@ export default {
 
 
 
+
 <style scoped>
-/* Styling for the custom modal */
+.modal-dialog {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  max-width: 500px;
+  width: 100%;
+}
+
 .custom-modal {
   position: fixed;
   top: 0;
