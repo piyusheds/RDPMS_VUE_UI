@@ -87,7 +87,7 @@ export default {
                     throw new Error('Authentication token is missing.');
                 }
 
-                const response = await ApiGatewayServies.get('Master', {
+                const response = await ApiGatewayServies.get('Master/Imeis', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
@@ -126,6 +126,7 @@ export default {
                 });
 
                 this.tableData = response.data; // Update table data
+                console.log(this.tableData);
 
                 // toast.success('Data fetched successfully!'); // Display success toast (optional)
             } catch (error) {

@@ -22,10 +22,11 @@
         </b-badge>
       </template>
       <template #cell(action)="row">
-        <b-button variant="primary" size="sm" @click="editItem(row.item)">
+        <b-button variant="primary" size="sm" @click="editItemAndNavigate(row.item)">
           Edit
         </b-button>
-        <b-button variant="danger" size="sm" class="ml-2" style="margin-left: 10px;" @click="showConfirmation(row.item)">
+        <b-button variant="danger" size="sm" class="ml-2" style="margin-left: 10px;"
+          @click="showConfirmation(row.item)">
           Delete
         </b-button>
       </template>
@@ -129,6 +130,27 @@ export default {
         console.error("Error fetching data:", error);
       }
     },
+
+    // async editItemAndNavigate(item) {
+    //   try {
+    //     // Assuming 'imeiMac' is the unique identifier for editing
+    //     const imeiMac = item.imeimac;
+
+    //     // Fetch the data for editing based on imeiMac
+    //     const response = await ApiGatewayServices.get(`Master/${imeiMac}`);
+    //     console.log("Fetched data for editing:", response.data);
+
+    //     if (response.data) {
+    //       const data = encodeURIComponent(JSON.stringify(response.data));
+    //        this.$router.push({ name: 'EditDevices', query: { imeiMac } });
+    //     } else {
+    //       console.error("No data found for the selected item.");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error editing item:", error);
+    //   }
+    // },
+
     showConfirmation(item) {
       this.itemToDelete = item; // Set the item to delete
       this.showModal = true; // Open the confirmation modal
@@ -137,6 +159,11 @@ export default {
         modal.show(); // Show the Bootstrap modal
       });
     },
+    editItemAndNavigate(item) {
+      const imeiMac = item.imeimac; // Ensure this is the unique identifier
+      this.$router.push({ name: 'EditDevices', query: { imeiMac } });
+    },
+
     hideModal() {
       this.showModal = false; // Close the modal
       this.itemToDelete = null; // Clear the item
@@ -149,16 +176,12 @@ export default {
           const response = await ApiGatewayServices.delete(url);
           console.log("Delete Response:", response.data);
 
-          // Remove the item from the list
           this.items = this.items.filter((item) => item.imeimac !== this.itemToDelete.imeimac);
 
-          // Show success toast
           const toast = useToast();
-          toast.success(`"${this.itemToDelete.masterType}" "${this.itemToDelete.imeimac}" deleted successfully.`,{
+          toast.success(`"${this.itemToDelete.masterType}" "${this.itemToDelete.imeimac}" deleted successfully.`, {
             timeout: 2000,
           });
-
-          // Close the modal using Bootstrap Modal API
           const modal = bootstrap.Modal.getInstance(document.getElementById("deleteModal"));
           modal.hide();  // Hide the modal
 
@@ -249,7 +272,6 @@ export default {
   margin-right: 10px;
 }
 
-/* Transition classes for fading in and out */
 .custom-modal .fade-enter-active,
 .custom-modal .fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;

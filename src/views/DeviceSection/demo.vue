@@ -2,9 +2,7 @@
     <main>
         <div class="container mt-4">
             <b-card class="shadow-lg rounded p-4 border-0 bg-light">
-
                 <h4 class="mb-4">Master and Station Details</h4>
-
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <b-form-group label="Select Master Type:" label-for="master-type">
@@ -109,13 +107,15 @@
                                 </div>
 
 
-                                <div v-show="device.detailsVisible" class="device-details-content">
+                                <div class="device-details-content">
                                     <p><strong>Device ID:</strong> {{ device.deviceid }}</p>
                                     <p><strong>Device Name:</strong> {{ device.name }}</p>
 
 
-                                    <div v-if="device.devicetype === 'AC Volt'" class="ac-voltage-content">
+                                    <!-- For AC Voltage -->
+                                    <div v-if="device.devicetype === 'AC Voltage'" class="ac-voltage-content">
                                         <div class="d-flex align-items-center" v-for="n in 2" :key="'ac-voltage-' + n">
+                                            <!-- Channels -->
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
                                             </b-form-group>
@@ -151,9 +151,9 @@
                                         </div>
                                     </div>
 
-
                                     <div v-if="device.devicetype === 'AC Current'" class="ac-current-content">
                                         <div class="d-flex align-items-center" v-for="n in 6" :key="'ac-current-' + n">
+                                            <!-- Channels -->
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3"></b-form-group>
                                             </b-form-group>
@@ -164,16 +164,16 @@
                                                     :id="'ac-current-gears-' + n"></b-form-select>
                                             </b-form-group>
 
-                                            <!-- Value Range-->
+                                            <!-- Value Range -->
                                             <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
                                                 style="width: 21.5%;">
                                                 <div class="d-flex align-items-center">
                                                     <b-form-input v-model="device['acCurrentValueRange' + n + 'Min']"
-                                                        placeholder="Min" id="ac-current-value-range-min"
+                                                        placeholder="Min" :id="'ac-current-value-range-' + n + '-min'"
                                                         style="width: 40%; margin-right: 4%;"></b-form-input>
                                                     <span style="margin: 0 8px;">-</span>
                                                     <b-form-input v-model="device['acCurrentValueRange' + n + 'Max']"
-                                                        placeholder="Max" id="ac-current-value-range-max"
+                                                        placeholder="Max" :id="'ac-current-value-range-' + n + '-max'"
                                                         style="width: 40%;"></b-form-input>
                                                 </div>
                                             </b-form-group>
@@ -188,7 +188,9 @@
                                     </div>
 
 
-                                    <div v-if="device.devicetype === 'DC Volt'" class="dc-voltage-content">
+
+
+                                    <div v-if="device.devicetype === 'DC Voltage'" class="dc-voltage-content">
                                         <div class="d-flex align-items-center" v-for="n in 2" :key="'dc-voltage-' + n">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
@@ -226,30 +228,30 @@
                                             </b-form-group>
                                             <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
                                                 style="margin-left:25px;">
-                                                <b-form-select v-model="device['dcCurrentGears' + hut.name + n]"
+                                                <b-form-select v-model="device['dcCurrentGears' + n]"
                                                     :options="gearOptions"
                                                     :id="'dc-current-gears-' + n"></b-form-select>
                                             </b-form-group>
                                             <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
                                                 style="width: 21.5%;">
                                                 <div class="d-flex align-items-center">
-                                                    <b-form-input
-                                                        v-model="device['dcCurrentValueRange' + hut.name + n + 'Min']"
+                                                    <b-form-input v-model="device['dcCurrentValueRange' + n + 'Min']"
                                                         placeholder="Min" style="width: 40%; margin-right: 4%;"
-                                                        :id="'dc-range-input1-' + hut.name + n"></b-form-input>
+                                                        :id="'dc-range-input1-' + n"></b-form-input>
                                                     <span style="margin: 0 8px;">-</span>
-                                                    <b-form-input
-                                                        v-model="device['dcCurrentValueRange' + hut.name + n + 'Max']"
+                                                    <b-form-input v-model="device['dcCurrentValueRange' + n + 'Max']"
                                                         placeholder="Max" style="width: 40%;"
-                                                        :id="'dc-range-input2-' + hut.name + n"></b-form-input>
+                                                        :id="'dc-range-input2-' + n"></b-form-input>
                                                 </div>
                                             </b-form-group>
                                             <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
-                                                <b-form-input v-model="device['dcCurrentInput' + hut.name + n]"
-                                                    placeholder="Enter Parameter"></b-form-input>
+                                                <b-form-input v-model="device['dcCurrentParam' + n]"
+                                                    placeholder="Enter Parameter"
+                                                    :id="'dc-current-input-' + n"></b-form-input>
                                             </b-form-group>
                                         </div>
                                     </div>
+
 
 
                                     <div v-if="device.devicetype === 'Digital Input'" class="digital-input-content">
@@ -277,8 +279,6 @@
                                             </b-form-group>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </li>
                         </ul>
@@ -293,129 +293,7 @@
     </main>
 </template>
 
-<!-- <script>
-export default {
-    data() {
-        return {
-            acVoltageVisible: false,
-            isAcCurrentVisible: false,
-            isDcVoltVisible: false,
-            isDcCurrentVisible: false,
-            isDigIpVisible: false,
-            selectedMaster: null,
-            masterOptions: ["IMEI", "MAC"],
-            masterInput: '',
 
-            // Station Information
-            stationCode: '',
-            location: '',
-            name: '',
-            deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
-
-            // HUT Data
-            huts: [{
-                name: 'HUT 1',
-                param: '',
-
-                acVoltageGears: null,
-                acVoltageInput: '',
-                acVoltageGears2: null,
-                acVoltageInput2: '',
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(''),
-                dcVoltGears: null,
-                dcVoltInput: '',
-                dcVoltGears2: null,
-                dcVoltInput2: '',
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(''),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(''),
-                showDetails: false
-            }],
-
-            // Parameter Options
-            DeviceType: [
-                { value: null, text: "Select Device Type" },
-                "Ac Voltage", "Ac Current", "DC Volt", "Dc Current", "Digital Input"
-            ],
-            gearOptions: [
-                { value: null, text: "Select Gears" },
-                "Signals",
-                "Points",
-                "DC Track Circuits",
-                "Axle Counters",
-                "AF Track Circuits",
-                "Level Crossing Gates",
-                "Relays",
-                "Electronic Interlocking",
-                "Integrated Power Supply (IPS) / Battery Charger",
-                "Earth Leakage Detector (ELD)",
-                "Cables",
-                "Block Instruments",
-                "UFSBI",
-                "Ambient Temperature and Humidity",
-            ],
-        };
-    },
-    methods: {
-        addHut() {
-            const hutCount = this.huts.length + 1;
-            const newHut = {
-                name: `HUT ${hutCount}`,
-                param: '',
-                devicetype: null,
-                acVoltageGears: null,
-                acVoltageInput: '',
-                acVoltageGears2: null,
-                acVoltageInput2: '',
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(''),
-                dcVoltGears: null,
-                dcVoltInput: '',
-                dcVoltGears2: null,
-                dcVoltInput2: '',
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(''),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(''),
-                showDetails: false
-            };
-            this.huts.push(newHut);
-        },
-        deleteHut(index) {
-            this.huts.splice(index, 1);
-        },
-        toggleHutDetails(index) {
-            this.huts[index].showDetails = !this.huts[index].showDetails;
-        },
-        toggleACVoltageDetails() {
-            this.acVoltageVisible = !this.acVoltageVisible;
-        },
-        addDeviceRow(index) {
-            // Add a new device row to the current hut (at the given index)
-            this.huts[index].deviceNames.push({ name: '', parameter: '' });
-        },
-        removeDeviceRow(hutIndex, deviceIndex) {
-            // Remove the device row at the given deviceIndex for the given hutIndex
-            this.huts[hutIndex].deviceNames.splice(deviceIndex, 1);
-        },
-        addDeviceRow() {
-            this.deviceNames.push({ name: '', parameter: '' });
-        },
-
-        // Remove a device row
-        removeDeviceRow(deviceIndex) {
-            if (this.deviceNames.length > 1) {
-                this.deviceNames.splice(deviceIndex, 1);
-            } else {
-                console.error("Cannot remove the last row");
-            }
-        },
-    }
-};
-
-</script> -->
 
 <script>
 import { useToast } from 'vue-toast-notification';
@@ -424,64 +302,89 @@ export default {
 
     data() {
         return {
+            // General visibility toggles
             acVoltageVisible: false,
-
-            huts: [
-                {
-                    hutId: 1, name: "Hut 1", param: "", devices: [{
-                        name: '',
-                        devicetype: '',
-                        deviceid: '',
-                        parameter: '',
-                        detailsVisible: false,
-                    },], showDetails: false
-                },
-            ],
-            deviceNames: [
-                { name: '', devicetype: '', parameter: '' } // Initial row
-            ],
-            addedDevices: [],
             isAcCurrentVisible: false,
             isDcVoltVisible: false,
             isDcCurrentVisible: false,
             isDigIpVisible: false,
-            selectedMaster: "IMEI",
-            masterOptions: [
-                { value: '', text: "Select Master Type" },
-                { value: "IMEI", text: "IMEI" },
-                { value: "MAC", text: "MAC" },
+
+            // Devices and device properties
+            huts: [
+                {
+                    hutId: 1,
+                    name: "Hut 1",
+                    param: "",
+                    devices: [
+                        {
+                            name: '',
+                            devicetype: '',
+                            deviceid: '',
+                            parameter: '',
+                            detailsVisible: false,
+                        }
+                    ],
+                    showDetails: false
+                }
             ],
-            selectedMaster: '',
-            masterInput: '',
-            stationCode: '',
-            location: '',
-            name: '',
-            jsonData: '',
-            deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
-            // huts: [{
-            //     name: 'HUT 1',
-            //     param: '',
-            //     acVoltageVisible: false,
-            //     acVoltageGears: null,
-            //     acVoltageInput: '',
-            //     acVoltageGears2: null,
-            //     acVoltageInput2: '',
-            //     acCurrentGears: Array(6).fill(null),
-            //     acCurrentInput: Array(6).fill(''),
-            //     dcVoltGears: null,
-            //     dcVoltInput: '',
-            //     dcVoltGears2: null,
-            //     dcVoltInput2: '',
-            //     dcCurrentGears: Array(6).fill(null),
-            //     dcCurrentInput: Array(6).fill(''),
-            //     digIpGears: Array(16).fill(null),
-            //     digIpInputs: Array(16).fill(''),
-            //     showDetails: false
-            // }],
-            DeviceType: [
-                { value: '', text: "Select Device Type" },
-                "AC Volt", "AC Current", "DC Volt", "DC Current", "Digital Input"
+
+            deviceNames: [
+                { name: '', devicetype: '', parameter: '' } // Initial row for devices
             ],
+
+            // Device properties initialized for AC Voltage
+            // device: {
+            //     devicetype: 'AC Voltage',
+            //     acVoltageChannels: [
+            //         {
+            //             input: '',
+            //             gear: '',
+            //             valueRangeMin: '',
+            //             valueRangeMax: '',
+            //             parameter: ''
+            //         },
+            //         {
+            //             input: '',
+            //             gear: '',
+            //             valueRangeMin: '',
+            //             valueRangeMax: '',
+            //             parameter: ''
+            //         }
+            //     ]
+            // },
+
+            device: {
+                devicetype: 'AC Voltage', // or 'AC Current', 'DC Voltage', etc.
+                acVoltageGears1: null,
+                acVoltageGears2: null,
+                acVoltageValueRange1Min: null,
+                acVoltageValueRange1Max: null,
+                acVoltageInput1: '',
+                acVoltageValueRange2Min: null,
+                acVoltageValueRange2Max: null,
+                acVoltageInput2: '',
+
+                acCurrentGears1: null,
+                acCurrentGears2: null,
+                acCurrentGears3: null,
+                acCurrentGears4: null,
+                acCurrentGears5: null,
+                acCurrentGears6: null,
+                acCurrentValueRange1Min: null,
+                acCurrentValueRange1Max: null,
+                acCurrentValueRange2Min: null,
+                acCurrentValueRange2Max: null,
+                acCurrentValueRange3Min: null,
+                acCurrentValueRange3Max: null,
+                acCurrentParam1: '',
+                acCurrentParam2: '',
+                acCurrentParam3: '',
+                acCurrentParam4: '',
+                acCurrentParam5: '',
+                acCurrentParam6: ''
+            },
+
+            // Gear options (these can be used in the form fields)
             gearOptions: [
                 { value: '', text: "Select Gears" },
                 "Signals", "Points", "DC Track Circuits", "Axle Counters", "AF Track Circuits",
@@ -489,12 +392,38 @@ export default {
                 "Battery Charger", "Earth Leakage Detector (ELD)", "Cables", "Block Instruments", "UFSBI",
                 "Ambient Temperature and Humidity"
             ],
+
             ChannelValueOptions: [
                 { value: '', text: "Select Channel Value" },
                 { value: true, text: "True" },
                 { value: false, text: "False" },
             ],
-            // digitalInputValue: Array(16).fill(true),
+
+            // Master options for device types like IMEI, MAC, etc.
+            masterOptions: [
+                { value: '', text: "Select Master Type" },
+                { value: "IMEI", text: "IMEI" },
+                { value: "MAC", text: "MAC" },
+            ],
+
+            selectedMaster: '',
+            masterInput: '',
+
+            // Location and station info
+            stationCode: '',
+            location: '',
+            name: '',
+
+            // Raw data (change name to reflect the purpose)
+            jsonData: '',
+
+            // Device types available
+            DeviceType: [
+                { value: '', text: "Select Device Type" },
+                "AC Voltage", "AC Current", "DC Voltage", "DC Current", "Digital Input"
+            ],
+
+            // Hut data structure for storing all relevant information
             hutData: {
                 masterDetails: {
                     sno: 0,
@@ -511,10 +440,35 @@ export default {
                 acVoltageTable: [],
                 acCurrentTable: [],
             },
+            // };
+
+
+
+            // selectedMaster: '',
+            // masterInput: '',
+            // name: '',
+            // stationCode: '',
+            // location: '',
+            // huts: [],
+            // masterOptions: [], // Populate with actual options
+            // DeviceType: [], // Populate with actual device types
+            // gearOptions: [], // Populate with actual gear options
         };
     },
+    name: 'EditDevices',
 
+    mounted() {
+        // Assuming you want to initialize properties for AC Voltage (n=1 to 2)
+        for (let n = 1; n <= 2; n++) {
+            // Set values dynamically for each 'n'
+            this.device['acVoltageGears' + n] = "Gear Value " + n;  // Example value
+            this.device['acVoltageValueRange' + n + 'Min'] = "Min Value " + n;
+            this.device['acVoltageValueRange' + n + 'Max'] = "Max Value " + n;
+            this.device['acVoltageInput' + n] = "Parameter Name " + n;
+        }
+    }
 
+    ,
 
     methods: {
 
@@ -533,6 +487,411 @@ export default {
                 showDetails: false,
             });
         },
+
+        // async editItemAndNavigate(item) {
+        //     try {
+        //         // Assuming 'imeiMac' is the unique identifier for editing
+        //         const imeiMac = item.imeimac;
+
+        //         // Fetch the data for editing based on imeiMac
+        //         const response = await ApiGatewayServies.get(`Master/${imeiMac}`);
+        //         console.log("Fetched data for editing:", response.data);
+
+        //         if (response.data) {
+        //             const data = encodeURIComponent(JSON.stringify(response.data));
+        //             this.$router.push({ name: 'EditDevices', query: { imeiMac } });
+        //         } else {
+        //             console.error("No data found for the selected item.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error editing item:", error);
+        //     }
+        // },
+
+        // async editItemAndNavigate() {
+        //     try {
+        //         const imeiMac = this.$route.query.imeiMac; // Get the imeiMac from query params
+
+        //         if (!imeiMac) {
+        //             console.error("imeiMac not provided in query params.");
+        //             return;
+        //         }
+
+        //         // Fetch data for editing
+        //         const response = await ApiGatewayServies.get(`Master/${imeiMac}`);
+        //         console.log("Fetched data for editing:", response.data);
+
+        //         if (response.data) {
+        //             const data = encodeURIComponent(JSON.stringify(response.data));
+        //             // Handle the fetched data as needed
+        //             console.log("Data ready for editing:", data);
+        //         } else {
+        //             console.error("No data found for the selected item.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error editing item:", error);
+        //     }
+        // },
+
+
+        // Working edit method
+        // async editItemAndNavigate() {
+        //     try {
+        //         const imeiMac = this.$route.query.imeiMac;
+
+        //         if (!imeiMac) {
+        //             console.error("imeiMac not provided in query params.");
+        //             return;
+        //         }
+
+        //         // Fetch data from the API
+        //         const response = await ApiGatewayServies.get(`Master/${imeiMac}`);
+        //         console.log("Fetched data for editing:", response.data);
+
+        //         if (response.data) {
+        //             const data = response.data;
+
+        //             // Map master details
+        //             this.selectedMaster = data.masterDetails?.masterType || "";
+        //             this.masterInput = data.masterDetails?.imeimac || "";
+        //             this.name = data.masterDetails?.stationName || "";
+        //             this.stationCode = data.masterDetails?.stationCode || "";
+        //             this.location = data.masterDetails?.location || "";
+
+        //             // Initialize huts configuration
+        //             this.huts = [];
+
+        //             if (Array.isArray(data.hutConfiguration)) {
+        //                 data.hutConfiguration.forEach((hut, index) => {
+        //                     const hutId = hut.hutId || index + 1; // Fallback to index if hutId is missing
+
+        //                     // Check if HUT already exists in the array
+        //                     let existingHut = this.huts.find((h) => h.hutId === hutId);
+
+        //                     if (!existingHut) {
+        //                         // Create a new HUT entry if it doesn't exist
+        //                         existingHut = {
+        //                             hutId,
+        //                             name: `Hut ${hutId}`, // Default name based on hutId
+        //                             param: hut.hutId || "",
+        //                             devices: [],
+        //                             showDetails: false,
+        //                         };
+        //                         this.huts.push(existingHut);
+        //                     }
+
+        //                     // Append devices to the HUT
+        //                     if (Array.isArray(hut.devices)) {
+        //                         hut.devices.forEach((device) => {
+        //                             existingHut.devices.push({
+        //                                 name: device.name || "",
+        //                                 devicetype: device.devicetype || "",
+        //                                 deviceid: device.deviceid || "",
+        //                                 parameter: device.parameter || "",
+        //                                 detailsVisible: false,
+        //                             });
+        //                         });
+        //                     }
+        //                 });
+        //             }
+
+        //             console.log("Updated component state with HUTs and devices:", {
+        //                 selectedMaster: this.selectedMaster,
+        //                 masterInput: this.masterInput,
+        //                 name: this.name,
+        //                 stationCode: this.stationCode,
+        //                 location: this.location,
+        //                 huts: this.huts,
+        //             });
+        //         } else {
+        //             console.error("No data found for the selected item.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error editing item:", error);
+        //     }
+        // },
+
+        // working code 
+        // async editItemAndNavigate() {
+        //     try {
+        //         const imeiMac = this.$route.query.imeiMac;
+
+        //         if (!imeiMac) {
+        //             console.error("imeiMac not provided in query params.");
+        //             return;
+        //         }
+
+        //         // Fetch data from the API
+        //         const response = await ApiGatewayServies.get(`Master/${imeiMac}`);
+        //         console.log("Fetched data for editing:", response.data);
+
+        //         if (response.data) {
+        //             const data = response.data;
+
+        //             // Map master details
+        //             this.selectedMaster = data.masterDetails?.masterType || "";
+        //             this.masterInput = data.masterDetails?.imeimac || "";
+        //             this.name = data.masterDetails?.stationName || "";
+        //             this.stationCode = data.masterDetails?.stationCode || "";
+        //             this.location = data.masterDetails?.location || "";
+
+        //             // Prepare the device tables
+        //             const deviceTables = [
+        //                 { name: "AC Voltage", data: data.acVoltageTable },
+        //                 { name: "DC Voltage", data: data.dcVoltageTables },
+        //                 { name: "AC Current", data: data.acCurrentTable },
+        //                 { name: "DC Current", data: data.dcCurrentTable },
+        //                 { name: "Digital Input", data: data.digitalInputTable },
+        //             ];
+
+        //             // Initialize huts array
+        //             const huts = [];
+
+        //             // Map huts configuration
+        //             if (Array.isArray(data.hutConfiguration)) {
+        //                 data.hutConfiguration.forEach((hut, index) => {
+        //                     // Filter devices for this hut
+        //                     const devices = deviceTables.flatMap((table) => {
+        //                         return table.data
+        //                             .filter((device) => device.hutId === hut.hutId)
+        //                             .map((device) => {
+        //                                 // Map device data to include GearType, ParameterName, ChannelValue, etc.
+        //                                 let mappedDevice = {
+        //                                     name: table.name,
+        //                                     devicetype: device.deviceName,
+        //                                     deviceid: device.deviceId,
+        //                                     detailsVisible: false,
+        //                                 };
+
+        //                                 // Check and append specific details based on device type
+        //                                 if (table.name === "Digital Input") {
+        //                                     mappedDevice = {
+        //                                         ...mappedDevice,
+        //                                         gearType: device.gearType || "",
+        //                                         parameterName: device.parameterName || "",
+        //                                         channelValue: device.channelValue || "",
+        //                                     };
+        //                                 } else if (table.name === "AC Voltage" || table.name === "DC Voltage" || table.name === "AC Current" || table.name === "DC Current") {
+        //                                     mappedDevice = {
+        //                                         ...mappedDevice,
+        //                                         gearType: device.gearType || "",
+        //                                         min: device.min || "",
+        //                                         max: device.max || "",
+        //                                         parameterName: device.parameterName || "",
+        //                                     };
+        //                                 }
+
+        //                                 return mappedDevice;
+        //                             });
+        //                     });
+
+        //                     // Push hut and its devices to the huts array
+        //                     huts.push({
+        //                         hutId: hut.hutId || index + 1, // Fallback to index if hutId is missing
+        //                         name: `Hut ${hut.hutId || index + 1}`, // Default name based on hutId or index
+        //                         param: hut.hutId || "",
+        //                         devices: devices.length
+        //                             ? devices
+        //                             : [
+        //                                 {
+        //                                     name: "",
+        //                                     devicetype: "",
+        //                                     deviceid: "",
+        //                                     gearType: "",
+        //                                     parameterName: "",
+        //                                     channelValue: "",
+        //                                     min: "",
+        //                                     max: "",
+        //                                     detailsVisible: false,
+        //                                 },
+        //                             ],
+        //                         showDetails: false,
+        //                     });
+        //                 });
+        //             }
+
+        //             // Assign mapped huts to component state
+        //             this.huts = huts;
+
+        //             console.log("Updated component state:", {
+        //                 selectedMaster: this.selectedMaster,
+        //                 masterInput: this.masterInput,
+        //                 name: this.name,
+        //                 stationCode: this.stationCode,
+        //                 location: this.location,
+        //                 huts: this.huts,
+        //             });
+        //         } else {
+        //             console.error("No data found for the selected item.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error editing item:", error);
+        //     }
+        // }
+
+        async editItemAndNavigate() {
+            try {
+                const imeiMac = this.$route.query.imeiMac;
+
+                if (!imeiMac) {
+                    console.error("imeiMac not provided in query params.");
+                    return;
+                }
+
+                // Initialize dataToSend object
+                const dataToSend = {};
+
+                // Fetch data from the API
+                const response = await ApiGatewayServies.get(`Master/${imeiMac}`);
+                console.log("Fetched data for editing:", response.data);
+
+                if (response.data) {
+                    const data = response.data;
+
+                    // Map master details
+                    this.selectedMaster = data.masterDetails?.masterType || "";
+                    this.masterInput = data.masterDetails?.imeiMac || "";
+                    this.name = data.masterDetails?.stationName || "";
+                    this.stationCode = data.masterDetails?.stationCode || "";
+                    this.location = data.masterDetails?.location || "";
+
+                    // Prepare the device tables
+                    const deviceTables = [
+                        { name: "AC Voltage", data: data.acVoltageTable, channels: 2 },
+                        { name: "DC Voltage", data: data.dcVoltageTables, channels: 2 },
+                        { name: "AC Current", data: data.acCurrentTable, channels: 6 },
+                        { name: "DC Current", data: data.dcCurrentTable, channels: 6 },
+                        { name: "Digital Input", data: data.digitalInputTable, channels: 0 }, // No channels for Digital Input
+                    ];
+
+                    // Initialize the hut
+                    const hut = {
+                        hutId: 1,
+                        name: "Hut 1",
+                        param: "",
+                        devices: [],
+                        showDetails: false,
+                    };
+
+                    // Function to map device attributes based on the device type
+                    const mapDeviceAttributes = (device, tableName, channelCount) => {
+                        let mappedDevice = {
+                            deviceid: device.deviceId,
+                            parameter: "",
+                            gearType: "",
+                            min: "",
+                            max: "",
+                            detailsVisible: false,
+                        };
+
+                        // Append specific details for device types
+                        switch (tableName) {
+                            case "Digital Input":
+                                mappedDevice = {
+                                    ...mappedDevice,
+                                    parameter: device.parameterName || "",
+                                };
+                                break;
+                            case "AC Voltage":
+                            case "DC Voltage":
+                            case "AC Current":
+                            case "DC Current":
+                                mappedDevice = {
+                                    ...mappedDevice,
+                                    channelsParameter: device.channelsParameter || "",
+                                    gearType: device.gearType || "",
+                                };
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // Initialize the table array if it doesn't exist
+                        if (!dataToSend[`${tableName}Table`]) {
+                            dataToSend[`${tableName}Table`] = [];
+                        }
+
+                        // For AC/DC Voltage or Current, map based on channel count
+                        if (channelCount > 0) {
+                            for (let n = 1; n <= channelCount; n++) {
+                                const channelData = {
+                                    sno: 0,
+                                    imeiMac: this.masterInput,
+                                    hutId: hut.param,
+                                    deviceId: device.deviceId,
+                                    deviceName: device.deviceName,
+                                    channels: `CH${n}`,
+                                    gearType: device[`gearType${n}`] || "Default", // Dynamic field access
+                                    channelValueRange1: device[`valueRange${n}Min`] || null, // Dynamic field access
+                                    channelValueRange2: device[`valueRange${n}Max`] || null, // Dynamic field access
+                                    channelUnit: "V", // Set to unit (example: "V")
+                                    channelsParameter: device[`inputParam${n}`] || "", // Dynamic field access
+                                };
+
+                                // Push each channel as a separate object
+                                dataToSend[`${tableName}Table`].push(channelData);
+                            }
+                        }
+
+                        return mappedDevice;
+                    };
+
+                    // Map devices to the hut
+                    deviceTables.forEach((table) => {
+                        if (table.data && Array.isArray(table.data)) {
+                            table.data.forEach((device) => {
+                                const deviceGroup = {
+                                    name: device.deviceName,
+                                    devicetype: table.name,
+                                    deviceid: device.deviceId,
+                                    devices: [],
+                                };
+
+                                // Map device attributes based on device type and channel count
+                                const mappedDevice = mapDeviceAttributes(device, table.name, table.channels);
+
+                                // Check if device already exists in the hut and update or add new devices
+                                const existingDeviceGroup = hut.devices.find(d => d.deviceid === device.deviceId);
+                                if (existingDeviceGroup) {
+                                    // Update the existing device
+                                    existingDeviceGroup.devices.push(mappedDevice);
+                                } else {
+                                    // Add a new device group
+                                    deviceGroup.devices.push(mappedDevice);
+                                    hut.devices.push(deviceGroup);
+                                }
+                            });
+                        }
+                    });
+
+                    // Assign the hut to the component state
+                    this.huts = [hut];
+
+                    console.log("Updated component state:", {
+                        selectedMaster: this.selectedMaster,
+                        masterInput: this.masterInput,
+                        name: this.name,
+                        stationCode: this.stationCode,
+                        location: this.location,
+                        huts: this.huts,
+                    });
+
+                } else {
+                    console.error("No data found for the selected item.");
+                }
+            } catch (error) {
+                console.error("Error editing item:", error);
+            }
+        }
+
+
+
+
+
+        //   },
+        // 
+        ,
+
 
         async saveHutData() {
             this.loading = true;
@@ -567,16 +926,16 @@ export default {
             this.huts.forEach((hut) => {
                 hut.devices.forEach((device) => {
                     console.log("Device Type:", device.devicetype);
-                    if (device.devicetype === "AC Volt") {
+                    if (device.devicetype === "AC Voltage") {
                         for (let n = 1; n <= 2; n++) {
                             const channelData = {
-                                sno: 0,  
+                                sno: 0,
                                 imeiMac: this.masterInput,
                                 hutId: hut.param,
                                 deviceId: device.deviceid,
                                 deviceName: device.name,
                                 channels: `CH${n}`,
-                                gearType: device[`acVoltageGears${n}`] || "AC Volt",  // Default value if not set
+                                gearType: device[`acVoltageGears${n}`] || "AC Voltage",  // Default value if not set
                                 channelValueRange1: device[`acVoltageValueRange${n}Min`] || null,  // Min value
                                 channelValueRange2: device[`acVoltageValueRange${n}Max`] || null,  // Max value
                                 channelUnit: "V",  // Voltage unit
@@ -586,7 +945,7 @@ export default {
                             dataToSend.acVoltageTable.push(channelData);
                         }
                     }
-                    else if (device.devicetype === "DC Volt") {
+                    else if (device.devicetype === "DC Voltage") {
                         const channelData = [];
 
                         for (let n = 1; n <= 2; n++) {
@@ -727,47 +1086,12 @@ export default {
         toggleHutDetails(index) {
             this.huts[index].showDetails = !this.huts[index].showDetails;
         },
-        // addDeviceRow() {
-        //     this.deviceNames.push({ name: '', parameter: '' });
-        // },
         removeDeviceRow(index) {
             this.deviceNames.splice(index, 1);
         },
         toggleACVoltageDetails(index) {
             this.huts[index].acVoltageVisible = !this.huts[index].acVoltageVisible;
         },
-        // addDeviceRow(hutName) {
-        //     // Find the hut by name
-        //     const hut = this.huts.find(h => h.name === hutName);
-
-        //     if (hut) {
-        //         // Ensure that the hut has an addedDevices array
-        //         if (!hut.addedDevices) {
-        //             hut.addedDevices = [];
-        //         }
-
-        //         // Create the new device object
-        //         const newDevice = {
-        //             devicename: '',
-        //             devicetype: '',
-        //             parameter: '',
-        //             detailsVisible: false,
-        //             acVoltageGears: '',
-        //             acVoltageInput: '',
-        //             acVoltageGears2: '',
-        //             acVoltageInput2: ''
-        //         };
-
-        //         // Push the new device to the appropriate hut's addedDevices array
-        //         hut.addedDevices.push(newDevice);
-
-        //         // Clear the input fields (optional)
-        //         this.deviceNames[0].name = '';
-        //         this.deviceNames[0].devicetype = '';
-        //         this.deviceNames[0].parameter = '';
-        //     }
-        // },
-
         addDeviceRow(hutId) {
             const hut = this.huts.find((h) => h.hutId === hutId);
             hut.devices.push({
@@ -777,8 +1101,6 @@ export default {
                 detailsVisible: false,
             });
         },
-
-
         removeDeviceRow(hutId, deviceIndex) {
             const hut = this.huts.find((h) => h.hutId === hutId);
             hut.devices.splice(deviceIndex, 1);
@@ -790,7 +1112,19 @@ export default {
         removeDevice(hutId, index) {
             this.removeDeviceRow(hutId, index);
         },
-    }
+    },
+
+    created() {
+        // Automatically call editItemAndNavigate when the component is created
+        this.editItemAndNavigate();
+    },
+    // mounted() {
+    //     this.editItemAndNavigate(); // Fetch data when the component is mounted
+    // },
+    // watch: {
+    //     // Re-trigger the method if query params change
+    //     '$route.query': 'editItemAndNavigate',
+    // },
 };
 </script>
 
@@ -927,3 +1261,4 @@ button {
     margin-left: 30px;
 }
 </style>
+    

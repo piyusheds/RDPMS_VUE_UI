@@ -10,6 +10,7 @@ import AddDevices from '../views/DeviceSection/AddDevices.vue';
 import LoginService from '../Services/LoginService';
 import HistoryData from '../views/Data/HistoryData.vue';
 import LiveData from '../views/Data/LiveData.vue';
+import EditDevices from '../views/DeviceSection/EditDevices.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -40,6 +41,15 @@ const router = createRouter({
       path: '/AddDeviceTable',
       name: 'AddDeviceTable',
       component: AddDeviceTable,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/EditDevices',
+      name: 'EditDevices',
+      component: EditDevices,
+      props: route => ({
+        data: route.query.data
+      }),
       meta: { requiresAuth: true },
     },
     {
