@@ -8,7 +8,8 @@
             <div class="d-flex align-items-center justify-content-between mb-3">
               <a href="index.html" class="">
                 <h3 class="text-primary">
-                  <img src="src/assets/howrahlogo1.jpeg" alt="" style="width: 57px; border-radius: 30px;" />
+                  <img class="rounded-circle" :src="train" alt="" style="width: 40px; height: 40px;">
+
                 </h3>
               </a>
               <h3>Sign In</h3>
@@ -49,9 +50,10 @@
     </div>
   </div>
 </template>
-
 <script>
 import LoginService from '../Services/LoginService';
+import train from '/assets/howrahlogo1.jpeg';
+import { useToast } from 'vue-toastification';
 
 export default {
   data() {
@@ -59,11 +61,19 @@ export default {
       stationCode: '',
       username: '',
       password: '',
+      train,
     };
   },
   methods: {
     async signIn() {
+      const toast = useToast();
+
       try {
+        if (!this.stationCode || !this.username || !this.password) {
+          toast.error('All fields are required!');
+          return;
+        }
+
         const credentials = {
           railwayStationCode: this.stationCode,
           userId: this.username,
@@ -74,23 +84,28 @@ export default {
 
         const token = response; // Assuming LoginService returns the token
 
-        console.log('Token:', token);
-
         if (token) {
-          // Store the token (e.g., in localStorage)
+          toast.success('Login successful!');
+
+          // Store the token
           localStorage.setItem('authToken', token);
 
-          // Optionally, you could store token in Vuex or manage session states
+          // Redirect to the home page
+          this.$router.push({ name: 'home' });
 
-          // Redirect to the home page after successful login
-          this.$router.push({ name: 'home' }); // Redirect to 'home' page
-
-          // Emit an event or handle the logic here
           this.$emit('signedIn');
         } else {
-          console.error('Login failed: No token received');
+          toast.error('Login failed: Invalid credentials!');
         }
       } catch (error) {
+        // Handle specific errors based on API response or error message
+        if (error.response && error.response.status === 401) {
+          toast.error('Invalid username or password!');
+        } else if (error.response && error.response.status === 404) {
+          toast.error('User not found!');
+        } else {
+          toast.error('An unexpected error occurred. Please try again.');
+        }
         console.error('Login failed:', error);
       }
     },
@@ -98,9 +113,10 @@ export default {
 };
 </script>
 
+
 <style>
 .sign-in-container {
-  background-image: url(src/assets/oldtrain.jpg);
+  background-image: url(/assets/oldtrain.jpg);
   background-size: cover;
   background-position: center;
   position: relative;

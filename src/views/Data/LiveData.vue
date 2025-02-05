@@ -1,76 +1,125 @@
 <template>
-    <main>
+    <main style="padding-top:10px;">
+        <div class="row">
+            <div class="col-12 d-flex justify-content-between">
+                <h2 class="text-center text-primary">Live Data Overview</h2>
+                <div class="d-flex">
+                    <div class="dropdown-container">
+                        <label for="search-bar" style="margin-right: 10px;">Search</label>
+                        <input type="text" id="search-bar" v-model="searchQuery" @input="filterTableData"
+                            placeholder="Search by Device ID, Hut ID, or any other field" class="custom-input"
+                            :disabled="!selectedImei" style="margin-right: 20px;" />
+                    </div>
+                    <button @click="downloadData" class="download-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="download-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="main-container">
             <div class="div-ddl">
                 <!-- IMEI Dropdown -->
                 <div class="dropdown-container">
-                    <label for="imei-select">IMEI</label>
-                    <select id="imei-select" v-model="selectedImei" @change="fetchTableData" class="custom-select">
+                    <label for="imei-select" style="margin-right: 10px;">IMEI</label>
+                    <select id="imei-select" v-model="selectedImei" @change="onImeiChange" class="custom-select">
                         <option value="" disabled>Select IMEI</option>
                         <option v-for="imei in imeiList" :key="imei" :value="imei">{{ imei }}</option>
                     </select>
                 </div>
 
-                <!-- Device Type Dropdown -->
+
+                <!-- Hut ID Dropdown -->
                 <div class="dropdown-container">
-                    <label for="deviceType-select">Device Type</label>
-                    <select id="deviceType-select" v-model="selectedDeviceType" @change="fetchTableData"
-                        class="custom-select">
+                    <label for="hutId-select" style="margin-right: 10px;">Hut ID</label>
+                    <select id="hutId-select" v-model="selectedHutId" @change="filterDataByHutId" class="custom-select"
+                        :disabled="!selectedImei">
+                        <!-- Default "Select Hut ID" option with empty value -->
+                        <option value="" disabled>Select Hut ID</option>
+
+                        <!-- Add the "All" option -->
                         <option value="All">All</option>
-                        <option v-for="device in uniqueDeviceTypes" :key="device" :value="device">{{ device }}</option>
+
+                        <!-- Loop through the hutIdList and populate the dropdown -->
+                        <option v-for="hutId in hutIdList" :key="hutId" :value="hutId">{{ hutId }}</option>
+                    </select>
+                </div>
+
+
+
+
+
+                <div class="dropdown-container">
+                    <label for="deviceType-select" style="margin-right: 10px;">Device Type</label>
+                    <select id="deviceType-select" v-model="selectedDeviceType" @change="filterAndSortTable"
+                        class="custom-select" style="width:118px" :disabled="!selectedImei">
+                        <option value="">All</option>
+                        <option v-for="device in deviceTypeOrder" :key="device" :value="device">{{ device }}</option>
+                    </select>
+                </div>
+
+                <!-- New Dropdown for Status Filter -->
+                <div class="dropdown-container">
+                    <label for="status-select" style="margin-right: 10px;">Status</label>
+                    <select id="status-select" v-model="selectedStatus" @change="filterAndSortByStatus"
+                        class="custom-select" style="width:118px" :disabled="!selectedImei">
+                        <option value="">All</option>
+                        <option v-for="status in statusOptions" :key="status" :value="status">{{ status }}</option>
                     </select>
                 </div>
             </div>
+
             <div>
                 <!-- Download Button -->
-                <button @click="downloadData" class="download-btn">Download</button>
             </div>
         </div>
+
         <!-- Table Data -->
-        <div class="table-responsive">
-            <table class="table table-striped">
+        <div class="table-responsive" style="margin-top: 0px!important">
+            <table id="dataTable" class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th @click="sortTable('SNo')">Sno</th>
-                        <th @click="sortTable('imeiMac')">IMEI/MAC</th>
                         <th @click="sortTable('deviceType')">Device Type</th>
                         <th @click="sortTable('hutId')">Hut ID</th>
                         <th @click="sortTable('deviceId')">Device ID</th>
                         <th @click="sortTable('channelId')">Channel ID</th>
                         <th @click="sortTable('gearType')">Gear Type</th>
-                        <th @click="sortTable('timeStamp')">Date/Time</th>
-                        <th @click="sortTable('value')">Range/Value</th>
-                        <th @click="sortTable('value')">Value</th>
-                        <th>Status</th>
+                        <th @click="sortTable('timeStamp')">Date</th>
+                        <th @click="sortTable('timeStamp')">Time</th>
+                        <th style="text-align: center;" @click="sortTable('value')">Value</th>
+                        <th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- <div v-if="loading" class="loading">Loading data, please wait...</div> -->
                     <tr v-for="(item, index) in paginatedData" :key="item.imeiMac">
                         <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                        <td>{{ item.imeiMac }}</td>
                         <td>{{ item.deviceType }}</td>
                         <td>{{ item.hutId }}</td>
                         <td>{{ item.deviceId }}</td>
                         <td>{{ item.channelId }}</td>
                         <td style="width: 195px;">{{ item.tableData.gearType || 'N/A' }}</td>
-                        <td>
-                            {{ formatDate(item.timeStamp) || 'N/A' }}
-                            <br>
-                            {{ formatTimestamp(item.timeStamp) || 'N/A' }}
+                        <td>{{ formatDate(item.timeStamp) || 'N/A' }}</td>
+                        <td>{{ formatTimestamp(item.timeStamp) || 'N/A' }}</td>
+                        <td style="text-align: center;">{{ item.value || 'N/A' }}</td>
+                        <td style="text-align: center;">
+                            <button :class="['status-btn', getStatus(item).statusClass]">
+                                {{ getStatus(item).status }}
+                            </button>
                         </td>
-                        <td class="center">{{ getChannelValueRange(item) }}</td>
-                        <td>{{ item.value || 'N/A' }}</td>
-                        <td>{{ getStatus(item) }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <!-- 
         <div class="pagination">
             <button @click="prevPage" :disabled="currentPage === 1" class="pagination-btn">Previous</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
             <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-btn">Next</button>
-        </div>
+        </div> -->
     </main>
 </template>
 
@@ -78,334 +127,17 @@
 import ApiGatewayServies from '../../Services/ApiGatewayServies';
 import { jsPDF } from 'jspdf'; // For PDF export
 import * as XLSX from 'xlsx'; // For Excel export
+import $ from 'jquery';
+import 'datatables.net';
+import 'datatables.net-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
-// export default {
-//     data() {
-//         return {
-//             imeiList: [], // Holds the fetched IMEI list
-//             selectedImei: '', // Stores the selected IMEI
-//             selectedDeviceType: 'All', // Stores the selected Device Type
-//             tableData: [], // Data to populate the table
-//             paginatedData: [], // Data for current page
-//             currentPage: 1, // Current page for pagination
-//             itemsPerPage: 10, // Number of items per page
-//             totalPages: 0, // Total number of pages
-//             loading: false, // Controls the loading state
-//             sortBy: '', // Column to sort by
-//             sortDirection: 'asc', // Sorting direction (asc or desc)
-
-//         };
-//     },
-//     created() {
-//         // Fetch IMEI list when the component is created
-//         this.fetchImeiList();
-//     },
-//     watch: {
-//         // Watch for changes in the selected IMEI and fetch table data
-//         selectedImei() {
-//             this.fetchTableData(); // Fetch table data based on the selected IMEI
-//         },
-//         selectedDeviceType() {
-//             this.fetchTableData(); // Fetch table data based on the selected device type
-//         },
-//     },
-//     computed: {
-//         uniqueDeviceTypes() {
-//             // Get unique device types from table data
-//             const deviceTypes = this.tableData.map(item => item.deviceType);
-//             return [...new Set(deviceTypes)];
-//         },
-//     },
-
-//     mounted() {
-//     // Perform the initial data fetch when the component is opened
-//     this.fetchTableData();
-
-//     // Start a background refresh to update data without full page refresh
-//     this.dataRefreshInterval = setInterval(() => {
-//       this.fetchTableData();
-//     }, 10);  // Refresh data every 10 milliseconds
-//   },
-//   beforeDestroy() {
-//     // Clear the interval to avoid unnecessary API calls when the component is destroyed
-//     clearInterval(this.dataRefreshInterval);
-//   },
-//     methods: {
-//         // Fetch IMEI list from the API
-//         async fetchImeiList() {
-//             try {
-//                 this.loading = true; // Set loading state to true
-
-//                 const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
-//                 if (!token) {
-//                     throw new Error('Authentication token is missing.');
-//                 }
-
-//                 const response = await ApiGatewayServies.get('Master/Imeis', {
-//                     headers: {
-//                         'Content-Type': 'application/json',
-//                         'Authorization': `Bearer ${token}`,
-//                     },
-//                 });
-
-//                 this.imeiList = response.data; // Store the fetched IMEI list
-//             } catch (error) {
-//                 console.error('Error fetching IMEI list:', error);
-//             } finally {
-//                 this.loading = false; // Reset loading state
-//             }
-//         },
-
-//         // Fetch table data based on the selected IMEI and device type
-//         async fetchTableData() {
-//       try {
-//         this.loading = true; // Set loading state to true
-
-//         const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
-//         if (!token) {
-//           throw new Error('Authentication token is missing.');
-//         }
-
-//         let url = `DeviceData/GetLiveDatasByImeiMac?imeiMac=${this.selectedImei}`;
-//         if (this.selectedDeviceType !== 'All') {
-//           url += `&deviceType=${this.selectedDeviceType}`;
-//         }
-
-//         // Fetch data from the server
-//         const response = await ApiGatewayServies.get(url, {
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${token}`,
-//           },
-//         });
-
-//         // Update table data with the response from the backend
-//         this.tableData = response.data;
-//         this.totalPages = Math.ceil(this.tableData.length / this.itemsPerPage);
-
-//         // Update paginated data without blocking the UI
-//         this.updatePaginatedData();
-//       } catch (error) {
-//         console.error('Error fetching table data:', error);
-//       } finally {
-//         this.loading = false; // Reset loading state
-//       }
-//     },
-
-//         // Update the data for the current page
-//         updatePaginatedData() {
-//             const start = (this.currentPage - 1) * this.itemsPerPage;
-//             const end = start + this.itemsPerPage;
-//             this.paginatedData = this.tableData.slice(start, end);
-//         },
-
-//         // Change to the previous page
-//         prevPage() {
-//             if (this.currentPage > 1) {
-//                 this.currentPage--;
-//                 this.updatePaginatedData();
-//             }
-//         },
-
-//         // Change to the next page
-//         nextPage() {
-//             if (this.currentPage < this.totalPages) {
-//                 this.currentPage++;
-//                 this.updatePaginatedData();
-//             }
-//         },
-
-//         // Sorting function
-//         sortTable(column) {
-//             this.sortDirection = this.sortBy === column && this.sortDirection === 'asc' ? 'desc' : 'asc';
-//             this.sortBy = column;
-
-//             this.tableData.sort((a, b) => {
-//                 let valA = a[column];
-//                 let valB = b[column];
-
-//                 // Handle nested properties like tableData.gearType
-//                 if (column === 'gearType') {
-//                     valA = a.tableData.gearType;
-//                     valB = b.tableData.gearType;
-//                 }
-
-//                 if (valA < valB) {
-//                     return this.sortDirection === 'asc' ? -1 : 1;
-//                 }
-//                 if (valA > valB) {
-//                     return this.sortDirection === 'asc' ? 1 : -1;
-//                 }
-//                 return 0;
-//             });
-
-//             this.updatePaginatedData();
-//         },
-
-//         getChannelValueRange(item) {
-//             const range1 = item.tableData.channelValueRange1 ?? 'N/A';
-//             const range2 = item.tableData.channelValueRange2 ?? 'N/A';
-//             return item.deviceType === 'Digital Input' ? range1 : `${range1} - ${range2}`;
-//         }
-
-//         ,
-
-//         formatTimestamp(timestamp) {
-//             if (!timestamp) {
-//                 return null; // Return null if the timestamp is null or undefined
-//             }
-
-//             const date = new Date(timestamp * 1000);
-
-//             let hours = date.getUTCHours();
-//             let minutes = date.getUTCMinutes();
-//             let seconds = date.getUTCSeconds();
-
-//             hours += 5;
-//             minutes += 30;
-
-//             if (minutes >= 60) {
-//                 minutes -= 60;
-//                 hours += 1;
-//             }
-
-//             if (hours >= 24) {
-//                 hours -= 24;
-//             }
-
-//             const formattedHours = hours < 10 ? `0${hours}` : hours;
-//             const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-//             const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-
-//             return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-//         },
-
-//         formatDate(timestamp) {
-//             if (!timestamp) {
-//                 return null;
-//             }
-
-//             const date = new Date(timestamp * 1000);
-
-//             let hours = date.getUTCHours();
-//             let minutes = date.getUTCMinutes();
-
-//             hours += 5;
-//             minutes += 30;
-
-//             if (minutes >= 60) {
-//                 minutes -= 60;
-//                 hours += 1;
-//             }
-
-//             if (hours >= 24) {
-//                 hours -= 24;
-//                 date.setUTCDate(date.getUTCDate() + 1); // Increment the day
-//             }
-
-//             const day = date.getUTCDate();
-//             const month = date.getUTCMonth() + 1;
-//             const year = date.getUTCFullYear();
-
-//             const formattedDay = day < 10 ? `0${day}` : day;
-//             const formattedMonth = month < 10 ? `0${month}` : month;
-
-//             return `${formattedDay}/${formattedMonth}/${year}`;
-//         },
-
-//         getStatus(item) {
-//             // Check for Digital Input
-//             if (item.deviceType === 'Digital Input') {
-//                 return item.value === true ? 'Active' : 'Inactive';
-//             }
-
-//             // Check for AC Current or DC Current
-//             if (item.deviceType === 'AC Current' || item.deviceType === 'DC Current') {
-//                 const value = item.value;
-//                 const range1 = item.channelValueRange1;
-//                 const range2 = item.channelValueRange2;
-
-//                 if (value < range1) {
-//                     return 'Low Current';
-//                 } else if (value >= range1 && value <= range2) {
-//                     return 'Green';
-//                 } else if (value > range2) {
-//                     return item.deviceType === 'AC Current' ? 'Low AC Current' : 'Low DC Current';
-//                 }
-//             }
-
-//             // Check for AC Voltage or DC Voltage
-//             if (item.deviceType === 'AC Voltage' || item.deviceType === 'DC Voltage') {
-//                 const value = item.value;
-//                 const range1 = item.channelValueRange1;
-//                 const range2 = item.channelValueRange2;
-
-//                 if (value < range1) {
-//                     return item.deviceType === 'AC Voltage' ? 'Low AC Voltage' : 'Low DC Voltage';
-//                 } else if (value >= range1 && value <= range2) {
-//                     return 'Green';
-//                 } else if (value > range2) {
-//                     return item.deviceType === 'AC Voltage' ? 'Low AC Voltage' : 'Low DC Voltage';
-//                 }
-//             }
-
-//             // Default return if no conditions match
-//             return 'N/A';
-//         },
-
-//         downloadData() {
-//             // Export as PDF
-//             const doc = new jsPDF();
-//             let yOffset = 20;
-//             doc.text("Device Data", 10, yOffset);
-
-//             // Export table data
-//             this.paginatedData.forEach((item, index) => {
-//                 yOffset += 10;
-//                 doc.text(`Device Name: ${item.deviceName}, Device Type: ${item.deviceType}, Timestamp: ${this.formatDate(item.timestamp)} - ${this.formatTimestamp(item.timestamp)}`, 10, yOffset);
-//             });
-
-//             doc.save("DeviceData.pdf");
-
-//             // Export as Excel
-//             const ws = XLSX.utils.json_to_sheet(this.paginatedData);
-//             const wb = XLSX.utils.book_new();
-//             XLSX.utils.book_append_sheet(wb, ws, "Device Data");
-//             XLSX.writeFile(wb, "DeviceData.xlsx");
-//         },
-
-//         // Export data to Excel
-//         downloadExcel() {
-//             const worksheet = XLSX.utils.json_to_sheet(this.tableData);
-//             const workbook = XLSX.utils.book_new();
-//             XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-//             XLSX.writeFile(workbook, 'data.xlsx');
-//         },
-
-//         // Export data to PDF
-//         downloadPDF() {
-//             const doc = new jsPDF();
-
-//             doc.text('Table Data', 10, 10);
-//             this.tableData.forEach((item, index) => {
-//                 doc.text(`IMEI/MAC: ${item.imeiMac}, Device Type: ${item.deviceType}`, 10, 20 + index * 10);
-//             });
-
-//             doc.save('data.pdf');
-//         },
-
-//         // Trigger file download
-//         downloadData() {
-//             this.downloadExcel(); // Export to Excel by default
-//         },
-//     },
-// };
 export default {
     data() {
         return {
             imeiList: [], // Holds the fetched IMEI list
             selectedImei: '', // Stores the selected IMEI
-            selectedDeviceType: 'All', // Stores the selected Device Type
+            selectedDeviceType: "", // Stores the selected Device Type
             tableData: [], // Data to populate the table
             paginatedData: [], // Data for current page
             currentPage: 1, // Current page for pagination
@@ -415,82 +147,188 @@ export default {
             sortBy: '', // Column to sort by
             sortDirection: 'asc', // Sorting direction (asc or desc)
             dataRefreshInterval: null, // Interval to refresh data
+            uniqueDeviceTypes: [], // List of unique device types
+            selectedSortDeviceType: "", // Selected device type for sorting
+            deviceTypeOrder: ["Digital Input", "Ac Voltage", "Ac Current", "Dc Voltage", "Dc Current"], // Predefined order
+
+            statusOptions: ["Active", "Inactive", "Low Voltage", "Normal Voltage", "High Voltage", "Low Current", "Normal Current", "High Current"], // Status options for filtering
+            selectedStatus: '',
+            searchQuery: '',
+            hutIdList: [], // List of Hut IDs fetched based on the selected IMEI
+            selectedHutId: "",
+
         };
     },
     created() {
-        // Fetch IMEI list when the component is created
         this.fetchImeiList();
-    },
-    watch: {
-        // Watch for changes in the selected IMEI and fetch table data
-        selectedImei() {
-            this.fetchTableData(); // Fetch table data based on the selected IMEI
-        },
-        selectedDeviceType() {
-            this.fetchTableData(); // Fetch table data based on the selected device type
-        },
-    },
-    computed: {
-        uniqueDeviceTypes() {
-            // Get unique device types from table data
-            const deviceTypes = this.tableData.map(item => item.deviceType);
-            return [...new Set(deviceTypes)];
-        },
-    },
-    mounted() {
-        this.fetchTableData();
-
-        // Start a background refresh to update data without full page refresh
-        this.dataRefreshInterval = setInterval(() => {
-            this.fetchTableData();
-        }, 1000);  // Refresh data every 10 seconds
     },
     beforeDestroy() {
         // Clear the interval to avoid unnecessary API calls when the component is destroyed
         clearInterval(this.dataRefreshInterval);
     },
+    watch: {
+        selectedImei(newImei) {
+            console.log('selectedImei changed:', newImei);
+            if (newImei) {
+                this.fetchTableData(); // Fetch table data when IMEI changes
+                this.startRefreshInterval(); // Start the interval
+            } else {
+                this.stopRefreshInterval(); // Stop the interval if no IMEI is selected
+            }
+        },
+        selectedDeviceType() {
+            this.applyFiltersAndSorting(); // Apply sorting/filtering when selectedDeviceType changes
+        },
+        selectedStatus() {
+            this.applyFiltersAndSorting(); // Apply sorting/filtering when selectedStatus changes
+        }
+    },
+
+    computed: {
+        totalPages() {
+            return Math.ceil(this.tableData.length / this.itemsPerPage);
+        },
+    },
+    // beforeDestroy() {
+    //     // Clear the interval to avoid unnecessary API calls when the component is destroyed
+    //     clearInterval(this.dataRefreshInterval);
+    // },
+    mounted() {
+        this.$nextTick(() => {
+            if (this.tableData.length > 0) {
+                this.initializeDataTable();
+            }
+        });
+    },
+    unmounted() {
+        this.stopRefreshInterval(); // Stop the interval when the component is destroyed
+    },
     methods: {
-        // Fetch IMEI list from the API
+        initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().clear().destroy(); // Destroy existing instance
+            }
+            $('#dataTable').DataTable({
+                paging: true,
+                searching: true, // You can enable this if you need search functionality
+                ordering: true,
+                info: true,
+                autoWidth: false
+            });
+        },
         async fetchImeiList() {
             try {
-                this.loading = true; // Set loading state to true
-
-                const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
+                this.loading = true;
+                const token = localStorage.getItem('authToken');
                 if (!token) {
                     throw new Error('Authentication token is missing.');
                 }
-
                 const response = await ApiGatewayServies.get('Master/Imeis', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-
-                this.imeiList = response.data; // Store the fetched IMEI list
+                this.imeiList = response.data;
             } catch (error) {
                 console.error('Error fetching IMEI list:', error);
             } finally {
-                this.loading = false; // Reset loading state
+                this.loading = false;
             }
         },
 
-        // Fetch table data based on the selected IMEI and device type
-        async fetchTableData() {
-            try {
-                this.loading = true; // Set loading state to true
+        async fetchHutIds() {
+            // Check if IMEI is selected before making the request
+            if (!this.selectedImei) {
+                return; // Do nothing if no IMEI is selected
+            }
 
-                const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
+            try {
+                this.loading = true;
+                const token = localStorage.getItem('authToken');
                 if (!token) {
                     throw new Error('Authentication token is missing.');
                 }
 
-                let url = `DeviceData/GetLiveDatasByImeiMac?imeiMac=${this.selectedImei}`;
+                // Make the GET request to fetch Hut IDs based on the selected IMEI
+                const response = await ApiGatewayServies.get(`DeviceData/HutIds?imei=${this.selectedImei}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                // Assuming the response contains an array of Hut IDs
+                this.hutIdList = response.data;
+
+                // Clear the selected Hut ID if no valid Hut IDs are returned
+                if (this.hutIdList.length === 0) {
+                    this.selectedHutId = '';
+                }
+            } catch (error) {
+                console.error('Error fetching Hut IDs:', error);
+            } finally {
+                this.loading = false;
+            }
+        }
+        ,
+
+
+        async onImeiChange() {
+            try {
+                if (!this.selectedImei) return;
+
+                // Fetch Hut IDs based on the selected IMEI
+                await this.fetchHutIds();
+
+                // Fetch table data directly based on selected IMEI
+                await this.fetchTableData();
+            } catch (error) {
+                console.error('Error handling IMEI change:', error);
+            }
+        }
+        ,
+
+        async fetchHutIds() {
+            if (!this.selectedImei) return;
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) throw new Error('Authentication token is missing.');
+
+                const response = await ApiGatewayServies.get(
+                    `DeviceData/HutIds?imei=${this.selectedImei}`,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                this.hutIdList = response.data || [];
+                this.selectedHutId = 'All'; // Default to "All"
+            } catch (error) {
+                console.error('Error fetching Hut IDs:', error);
+            }
+        }
+        ,
+
+        async fetchTableData() {
+            console.log('fetchTableData triggered');
+            if (!this.selectedImei) return;
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) throw new Error('Authentication token is missing.');
+
+                let url = `IotDeviceData/GetLiveDatasByImeiMac?imeiMac=${this.selectedImei}`;
+
+                // Add device type condition if applicable
                 if (this.selectedDeviceType !== 'All') {
                     url += `&deviceType=${this.selectedDeviceType}`;
                 }
 
-                // Fetch data from the server
                 const response = await ApiGatewayServies.get(url, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -498,74 +336,130 @@ export default {
                     },
                 });
 
-                // Update table data with the response from the backend
-                this.tableData = response.data;
-                this.totalPages = Math.ceil(this.tableData.length / this.itemsPerPage);
+                this.tableData = response.data || [];
+                this.applyFiltersAndSorting();
 
-                // Update paginated data without blocking the UI
-                this.updatePaginatedData();
             } catch (error) {
                 console.error('Error fetching table data:', error);
-            } finally {
-                this.loading = false; // Reset loading state
             }
+        }
+        ,
+
+        applyFiltersAndSorting() {
+            this.filterAndSortByStatus();  // Apply sorting/filtering by status
+            this.filterAndSortTable();   // Apply sorting/filtering by device type
         },
 
-        // Update the data for the current page
-        updatePaginatedData() {
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            this.paginatedData = this.tableData.slice(start, end);
-        },
-
-        // Change to the previous page
-        prevPage() {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-                this.updatePaginatedData();
+        filterDataByHutId() {
+            if (!this.selectedHutId || this.selectedHutId === 'All') {
+                // If no Hut ID or "All" is selected, show all data
+                this.paginatedData = [...this.tableData];
+            } else {
+                // Filter data based on selected Hut ID
+                this.paginatedData = this.tableData.filter(item => item.hutId === this.selectedHutId);
             }
+
+            // After filtering, update pagination
+            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
         },
 
-        // Change to the next page
-        nextPage() {
-            if (this.currentPage < this.totalPages) {
-                this.currentPage++;
-                this.updatePaginatedData();
+
+
+
+        filterTableData() {
+            if (this.searchQuery.trim() === '') {
+                // If search query is empty, show all data
+                this.paginatedData = [...this.tableData];
+            } else {
+                // Filter data based on search query
+                this.paginatedData = this.tableData.filter(item => {
+                    // Adjust the fields to search according to your needs
+                    const searchFields = [
+                        item.deviceType,
+                        item.hutId,
+                        item.deviceId,
+                        item.channelId,
+                        item.gearType,
+                        item.timeStamp,
+                        item.value,
+                        this.getStatus(item).status
+                    ];
+
+                    // Return true if any field matches the search query (case insensitive)
+                    return searchFields.some(field =>
+                        field && field.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                });
             }
+
+            // After filtering, update pagination
+            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
         },
 
-        // Sorting function
-        sortTable(column) {
-            this.sortDirection = this.sortBy === column && this.sortDirection === 'asc' ? 'desc' : 'asc';
-            this.sortBy = column;
 
-            this.tableData.sort((a, b) => {
-                let valA = a[column];
-                let valB = b[column];
+        // updatePaginatedData() {
+        //     // Make sure we reset pagination to the first page if data is filtered
+        //     const totalItems = this.paginatedData.length;
 
-                // Handle nested properties like tableData.gearType
-                if (column === 'gearType') {
-                    valA = a.tableData.gearType;
-                    valB = b.tableData.gearType;
-                }
+        //     // Calculate the start and end indices based on the current page
+        //     const start = (this.currentPage - 1) * this.itemsPerPage;
+        //     const end = this.currentPage * this.itemsPerPage;
 
-                if (valA < valB) {
-                    return this.sortDirection === 'asc' ? -1 : 1;
-                }
-                if (valA > valB) {
-                    return this.sortDirection === 'asc' ? 1 : -1;
-                }
-                return 0;
-            });
+        //     // Slice the filtered or sorted data for pagination
+        //     const paginatedItems = this.paginatedData.slice(start, end);
 
-            this.updatePaginatedData();
+        //     // Ensure that paginated data is updated properly
+        //     this.displayedData = paginatedItems;
+
+        //     // Optionally: Update totalPages if you haven't already
+        //     this.totalPages = Math.ceil(totalItems / this.itemsPerPage);
+        // }
+
+        // ,
+
+        // prevPage() {
+        //     if (this.currentPage > 1) {
+        //         this.currentPage--;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
+        // nextPage() {
+        //     if (this.currentPage < this.totalPages) {
+        //         this.currentPage++;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
+        filterAndSortByStatus() {
+            if (this.selectedStatus && this.selectedStatus !== 'All') {
+                // Filter rows by status if a specific status is selected
+                this.paginatedData = this.tableData.filter(item => this.getStatus(item).status === this.selectedStatus);
+            } else {
+                // If 'All' is selected or no filter is applied, display all rows
+                this.paginatedData = [...this.tableData];
+            }
+
+            // After filtering, update the pagination
+            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
+
         },
 
-        getChannelValueRange(item) {
-            const range1 = item.tableData.channelValueRange1 ?? 'N/A';
-            const range2 = item.tableData.channelValueRange2 ?? 'N/A';
-            return item.deviceType === 'Digital Input' ? range1 : `${range1} - ${range2}`;
-        },
+        filterAndSortTable() {
+            // Apply filtering based on deviceType
+            if (this.selectedDeviceType && this.selectedDeviceType !== 'All') {
+                // Filter rows by deviceType if a specific type is selected
+                this.paginatedData = this.tableData.filter(item => item.deviceType === this.selectedDeviceType);
+            } else {
+                // If 'All' is selected or no filter is applied, display all rows
+                this.paginatedData = [...this.tableData];
+            }
+            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
+            // this.updatePaginatedData(); // Update the displayed paginated rows
+        }
+
+
+        ,
 
         formatTimestamp(timestamp) {
             if (!timestamp) {
@@ -633,100 +527,159 @@ export default {
         getStatus(item) {
             // Check for Digital Input
             if (item.deviceType === 'Digital Input') {
-                return item.value === true ? 'Active' : 'Inactive';
+                const status = item.value === "1" ? 'Active' : 'Inactive';
+                const statusClass = item.value === "1" ? 'btn-green' : 'btn-red'; // Button styles for Active/Inactive
+                return { status, statusClass };
             }
 
             // Check for AC Current or DC Current
-            if (item.deviceType === 'AC Current' || item.deviceType === 'DC Current') {
+            if (item.deviceType === "Ac Current" || item.deviceType === "Dc Current") {
                 const value = item.value;
-                const range1 = item.channelValueRange1;
-                const range2 = item.channelValueRange2;
+                const range1 = item.tableData.channelValueRange1;
+                const range2 = item.tableData.channelValueRange2;
 
                 if (value < range1) {
-                    return 'Low Current';
+                    return { status: 'Low Current', statusClass: 'btn-gray' };
                 } else if (value >= range1 && value <= range2) {
-                    return 'Green';
+                    return { status: 'Normal Current', statusClass: 'btn-green' };
                 } else if (value > range2) {
-                    return item.deviceType === 'AC Current' ? 'Low AC Current' : 'Low DC Current';
+                    return { status: 'High Current', statusClass: 'btn-red' };
                 }
             }
 
             // Check for AC Voltage or DC Voltage
-            if (item.deviceType === 'AC Voltage' || item.deviceType === 'DC Voltage') {
+            if (item.deviceType === "Ac Voltage" || item.deviceType === "Dc Voltage") {
                 const value = item.value;
-                const range1 = item.channelValueRange1;
-                const range2 = item.channelValueRange2;
+                const range1 = item.tableData.channelValueRange1;
+                const range2 = item.tableData.channelValueRange2;
 
                 if (value < range1) {
-                    return item.deviceType === 'AC Voltage' ? 'Low AC Voltage' : 'Low DC Voltage';
+                    return { status: 'Low Voltage', statusClass: 'btn-gray' };
                 } else if (value >= range1 && value <= range2) {
-                    return 'Green';
+                    return { status: 'Normal Voltage', statusClass: 'btn-green' };
                 } else if (value > range2) {
-                    return item.deviceType === 'AC Voltage' ? 'Low AC Voltage' : 'Low DC Voltage';
+                    return { status: 'High Voltage', statusClass: 'btn-red' };
                 }
             }
 
             // Default return if no conditions match
-            return 'N/A';
+            return { status: 'N/A', statusClass: 'btn-gray' }; // default gray button for unknown statuses
+        },
+        startRefreshInterval() {
+            if (this.dataRefreshInterval) {
+                console.log('Starting refresh interval');
+                clearInterval(this.dataRefreshInterval); // Clear existing interval
+            }
+            this.dataRefreshInterval = setInterval(() => {
+                this.fetchTableData(); // Fetch data periodically
+            }, 1000); // Set your preferred interval time
+        },
+        stopRefreshInterval() {
+            console.log('Stopping refresh interval');
+            if (this.dataRefreshInterval) {
+                clearInterval(this.dataRefreshInterval); // Stop the interval
+                this.dataRefreshInterval = null;
+            }
         },
 
         downloadData() {
-            // Export as PDF
-            const doc = new jsPDF();
-            let yOffset = 20;
-            doc.text("Device Data", 10, yOffset);
+            const fileType = "csv"; // You can allow the user to choose the file type
+            if (fileType === "csv") {
+                this.downloadCsv();
+            } else if (fileType === "pdf") {
+                this.downloadPdf();
+            }
+        },
 
-            // Export table data
-            this.paginatedData.forEach((item, index) => {
-                yOffset += 10;
-                doc.text(`Device Name: ${item.deviceName}, Device Type: ${item.deviceType}, Timestamp: ${this.formatDate(item.timestamp)} - ${this.formatTimestamp(item.timestamp)}`, 10, yOffset);
+        downloadCsv() {
+            const rows = [];
+            // Create table header row
+            rows.push([
+                'SNo', 'Device Type', 'Hut ID', 'Device ID', 'Channel ID', 'Gear Type', 'Date', 'Time', 'Value', 'Status'
+            ]);
+
+            // Create data rows
+            this.paginatedData.forEach(item => {
+                rows.push([
+                    item.deviceType,
+                    item.hutId,
+                    item.deviceId,
+                    item.channelId,
+                    item.tableData.gearType || 'N/A',
+                    this.formatDate(item.timeStamp),
+                    this.formatTimestamp(item.timeStamp),
+                    item.value || 'N/A',
+                    this.getStatus(item).status,
+                ]);
             });
 
-            doc.save("DeviceData.pdf");
+            // Convert to CSV format
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + rows.map(row => row.join(",")).join("\n");
 
-            // Export as Excel
-            const ws = XLSX.utils.json_to_sheet(this.paginatedData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Device Data");
-            XLSX.writeFile(wb, "DeviceData.xlsx");
-        },
+            // Create a link and download the CSV file
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "table_data.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+        ,
 
-        // Export data to Excel
-        downloadExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(this.tableData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-            XLSX.writeFile(workbook, 'data.xlsx');
-        },
-
-        // Export data to PDF
-        downloadPDF() {
+        downloadPdf() {
             const doc = new jsPDF();
+            const headers = ["SNo", "Device Type", "Hut ID", "Device ID", "Channel ID", "Gear Type", "Date", "Time", "Value", "Status"];
+            const rows = this.paginatedData.map(item => [
+                item.sno,
+                item.deviceType,
+                item.hutId,
+                item.deviceId,
+                item.channelId,
+                item.tableData.gearType || 'N/A',
+                this.formatDate(item.timeStamp),
+                this.formatTimestamp(item.timeStamp),
+                item.value || 'N/A',
+                this.getStatus(item).status,
+            ]);
 
-            doc.text('Table Data', 10, 10);
-            this.tableData.forEach((item, index) => {
-                doc.text(`IMEI/MAC: ${item.imeiMac}, Device Type: ${item.deviceType}`, 10, 20 + index * 10);
-            });
-
-            doc.save('data.pdf');
-        },
-
-        // Trigger file download
-        downloadData() {
-            this.downloadExcel(); // Export to Excel by default
+            doc.autoTable({ head: [headers], body: rows });
+            doc.save('device_data.pdf');
         },
     },
 };
-
 </script>
 
 <style scoped>
-/* Custom styling for the dropdowns */
+/* Custom styling for the dropdown containers */
 .dropdown-container {
     margin-bottom: 15px;
+    flex: 1;
+    /* Ensure dropdowns take up equal space */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
+/* Flex container to align the dropdowns in a row */
+.div-ddl {
+    display: flex;
+    gap: 20px;
+    /* Adjust gap between the dropdowns */
+    width: 100%;
+}
+
+/* Styling for the select element */
 .custom-select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+}
+
+/* Styling for the search input */
+.custom-input {
     padding: 8px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -736,23 +689,23 @@ export default {
 
 /* Improve button styles */
 .download-btn {
-    padding: 10px 15px;
-    background-color: #007bff;
+    padding: 9px 14px;
+    background-color: #308e87;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin-bottom: 20px;
+    font-size: 15px;
 }
 
 .download-btn:hover {
-    background-color: #0056b3;
+    background-color: #65a09c;
 }
 
 .pagination {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
 }
 
 .pagination-btn {
@@ -801,11 +754,74 @@ export default {
 .main-container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
 }
 
-.div-ddl {
-    display: flex;
-    gap: 20px;
+.status-btn {
+    width: 110px;
+    padding: 4px 7px;
+    border: none;
+    font-size: 13px;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-green {
+    background-color: rgba(62, 185, 95, 0.1) !important;
+    color: #3eb95f;
+}
+
+.btn-red {
+    background-color: rgba(231, 75, 43, 0.1) !important;
+    color: #e74b2b;
+}
+
+.btn-gray {
+    background-color: rgba(234, 146, 0, 0.1) !important;
+    color: #ea9200;
+}
+
+/* Optional: Add hover effect for better user experience */
+.status-btn:hover {
+    opacity: 0.9;
+}
+
+/* Centered headers for table */
+th {
+    text-align: center !important;
+}
+
+td {
+    text-align: center !important;
+}
+
+.download-btn {
+    background-color: #4CAF50;
+    /* Green background */
+    color: white;
+    /* White text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Space between icon and text */
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #45a049;
+    /* Darker green on hover */
+}
+
+.download-icon {
+    width: 20px;
+    height: 20px;
 }
 </style>

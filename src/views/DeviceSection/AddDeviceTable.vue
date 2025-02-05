@@ -131,26 +131,6 @@ export default {
       }
     },
 
-    // async editItemAndNavigate(item) {
-    //   try {
-    //     // Assuming 'imeiMac' is the unique identifier for editing
-    //     const imeiMac = item.imeimac;
-
-    //     // Fetch the data for editing based on imeiMac
-    //     const response = await ApiGatewayServices.get(`Master/${imeiMac}`);
-    //     console.log("Fetched data for editing:", response.data);
-
-    //     if (response.data) {
-    //       const data = encodeURIComponent(JSON.stringify(response.data));
-    //        this.$router.push({ name: 'EditDevices', query: { imeiMac } });
-    //     } else {
-    //       console.error("No data found for the selected item.");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error editing item:", error);
-    //   }
-    // },
-
     showConfirmation(item) {
       this.itemToDelete = item; // Set the item to delete
       this.showModal = true; // Open the confirmation modal

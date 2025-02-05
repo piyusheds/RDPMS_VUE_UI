@@ -7,8 +7,8 @@
 				</a>
 				<div class="d-flex align-items-center ms-4 mb-4">
 					<div class="position-relative">
-						<img class="rounded-circle" src="src/assets/train_icon.png" alt=""
-							style="width: 40px; height: 40px;">
+						<img class="rounded-circle" :src="trainIcon" alt="" style="width: 40px; height: 40px;">
+
 						<div
 							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
 						</div>
@@ -35,9 +35,10 @@
 					</RouterLink>
 
 					<!-- Signal Icon -->
-					<RouterLink to="/about" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-traffic-light me-2"></i>Signal
+					<RouterLink to="/GraphChart" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-chart-line me-2"></i>Graphs
 					</RouterLink>
+
 
 					<!-- Add Device Icon -->
 					<RouterLink to="/AddDeviceTable" class="nav-item nav-link" active-class="active">
@@ -67,6 +68,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import trainIcon from '/assets/train_icon.png';
+
 
 const is_expanded = ref(localStorage.getItem('is_expanded') === 'true');
 
@@ -85,7 +88,7 @@ onMounted(() => {
 const router = useRouter();
 const logout = () => {
 	localStorage.removeItem('authToken');
-	router.push('/');
+	router.push('/sign');
 	window.location.reload();
 };
 </script>
@@ -98,9 +101,9 @@ const logout = () => {
 }
 
 .nav-item.nav-link.active {
-  color: #007bff;
-  font-weight: bold;
-  text-decoration: none;
+	color: #007bff;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 .back-to-top {

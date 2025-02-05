@@ -85,9 +85,9 @@ router.beforeEach((to, from, next) => {
 	font-family: 'Fira sans', sans-serif;
 }
 
-body {
-	background: var(--light);
-}
+// body {
+// 	background: var(--light);
+// }
 
 button {
 	cursor: pointer;

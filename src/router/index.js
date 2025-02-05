@@ -11,6 +11,8 @@ import LoginService from '../Services/LoginService';
 import HistoryData from '../views/Data/HistoryData.vue';
 import LiveData from '../views/Data/LiveData.vue';
 import EditDevices from '../views/DeviceSection/EditDevices.vue';
+import GraphChart from '../views/Graphs/GraphChart.vue';
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -56,6 +58,12 @@ const router = createRouter({
       path: '/HistoryData',
       name: 'HistoryData',
       component: HistoryData,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/GraphChart',
+      name: 'GraphChart',
+      component: GraphChart,
       meta: { requiresAuth: true },
     },
     {
