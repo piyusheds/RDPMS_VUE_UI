@@ -1,9 +1,28 @@
 <template>
     <main style="padding-top:10px;">
         <div class="row">
+<<<<<<< HEAD
             <div class="col-12 d-flex justify-content-center ">
                 <h2 class="text-center text-primary">Real-Time Data</h2>
                 <div class="d-flex">
+=======
+            <div class="col-12 d-flex justify-content-between">
+                <h2 class="text-center text-primary">Live Data Overview</h2>
+                <div class="d-flex">
+                    <div class="dropdown-container">
+                        <label for="search-bar" style="margin-right: 10px;">Search</label>
+                        <input type="text" id="search-bar" v-model="searchQuery" @input="filterTableData"
+                            placeholder="Search by Device ID, Hut ID, or any other field" class="custom-input"
+                            :disabled="!selectedImei" style="margin-right: 20px;" />
+                    </div>
+                    <button @click="downloadData" class="download-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="download-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                 </div>
             </div>
         </div>
@@ -19,10 +38,15 @@
                 </div>
 
 
+<<<<<<< HEAD
+=======
+                <!-- Hut ID Dropdown -->
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                 <div class="dropdown-container">
                     <label for="hutId-select" style="margin-right: 10px;">Hut ID</label>
                     <select id="hutId-select" v-model="selectedHutId" @change="filterDataByHutId" class="custom-select"
                         :disabled="!selectedImei">
+<<<<<<< HEAD
                         <option value="" disabled>Select Hut ID</option>
                         <option value="All">All</option>
                         <option v-for="hutId in hutIdList" :key="hutId" :value="hutId">{{ hutId }}</option>
@@ -55,15 +79,109 @@
         </div>
 
         <!-- </div> -->
+=======
+                        <!-- Default "Select Hut ID" option with empty value -->
+                        <option value="" disabled>Select Hut ID</option>
+
+                        <!-- Add the "All" option -->
+                        <option value="All">All</option>
+
+                        <!-- Loop through the hutIdList and populate the dropdown -->
+                        <option v-for="hutId in hutIdList" :key="hutId" :value="hutId">{{ hutId }}</option>
+                    </select>
+                </div>
+
+
+
+
+
+                <div class="dropdown-container">
+                    <label for="deviceType-select" style="margin-right: 10px;">Device Type</label>
+                    <select id="deviceType-select" v-model="selectedDeviceType" @change="filterAndSortTable"
+                        class="custom-select" style="width:118px" :disabled="!selectedImei">
+                        <option value="">All</option>
+                        <option v-for="device in deviceTypeOrder" :key="device" :value="device">{{ device }}</option>
+                    </select>
+                </div>
+
+                <!-- New Dropdown for Status Filter -->
+                <div class="dropdown-container">
+                    <label for="status-select" style="margin-right: 10px;">Status</label>
+                    <select id="status-select" v-model="selectedStatus" @change="filterAndSortByStatus"
+                        class="custom-select" style="width:118px" :disabled="!selectedImei">
+                        <option value="">All</option>
+                        <option v-for="status in statusOptions" :key="status" :value="status">{{ status }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <!-- Download Button -->
+            </div>
+        </div>
+
+        <!-- Table Data -->
+        <div class="table-responsive" style="margin-top: 0px!important">
+            <table id="dataTable" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th @click="sortTable('SNo')">Sno</th>
+                        <th @click="sortTable('deviceType')">Device Type</th>
+                        <th @click="sortTable('hutId')">Hut ID</th>
+                        <th @click="sortTable('deviceId')">Device ID</th>
+                        <th @click="sortTable('channelId')">Channel ID</th>
+                        <th @click="sortTable('gearType')">Gear Type</th>
+                        <th @click="sortTable('timeStamp')">Date</th>
+                        <th @click="sortTable('timeStamp')">Time</th>
+                        <th style="text-align: center;" @click="sortTable('value')">Value</th>
+                        <th style="text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in paginatedData" :key="item.imeiMac">
+                        <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                        <td>{{ item.deviceType }}</td>
+                        <td>{{ item.hutId }}</td>
+                        <td>{{ item.deviceId }}</td>
+                        <td>{{ item.channelId }}</td>
+                        <td style="width: 195px;">{{ item.tableData.gearType || 'N/A' }}</td>
+                        <td>{{ formatDate(item.timeStamp) || 'N/A' }}</td>
+                        <td>{{ formatTimestamp(item.timeStamp) || 'N/A' }}</td>
+                        <td style="text-align: center;">{{ item.value || 'N/A' }}</td>
+                        <td style="text-align: center;">
+                            <button :class="['status-btn', getStatus(item).statusClass]">
+                                {{ getStatus(item).status }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 
+        <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1" class="pagination-btn">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-btn">Next</button>
+        </div> -->
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
     </main>
 </template>
 
 <script>
 import ApiGatewayServies from '../../Services/ApiGatewayServies';
+<<<<<<< HEAD
 import { AgGridVue } from '@ag-grid-community/vue3';
 import '@ag-grid-community/styles/ag-grid.css'
 import '@ag-grid-community/styles/ag-theme-alpine.css'
 import { useToast } from 'vue-toastification';
+=======
+import { jsPDF } from 'jspdf'; // For PDF export
+import * as XLSX from 'xlsx'; // For Excel export
+import $ from 'jquery';
+import 'datatables.net';
+import 'datatables.net-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
 export default {
     components: {
@@ -93,6 +211,7 @@ export default {
             hutIdList: [], // List of Hut IDs fetched based on the selected IMEI
             selectedHutId: "",
 
+<<<<<<< HEAD
             rowData: [], // Row data from your API
             columnDefs: [
                 {
@@ -256,6 +375,8 @@ export default {
 
             // },
 
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
         };
     },
     created() {
@@ -267,6 +388,10 @@ export default {
     },
     watch: {
         selectedImei(newImei) {
+<<<<<<< HEAD
+=======
+            console.log('selectedImei changed:', newImei);
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
             if (newImei) {
                 this.fetchTableData(); // Fetch table data when IMEI changes
                 this.startRefreshInterval(); // Start the interval
@@ -281,6 +406,19 @@ export default {
             this.applyFiltersAndSorting(); // Apply sorting/filtering when selectedStatus changes
         }
     },
+<<<<<<< HEAD
+=======
+
+    computed: {
+        totalPages() {
+            return Math.ceil(this.tableData.length / this.itemsPerPage);
+        },
+    },
+    // beforeDestroy() {
+    //     // Clear the interval to avoid unnecessary API calls when the component is destroyed
+    //     clearInterval(this.dataRefreshInterval);
+    // },
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
     mounted() {
         this.$nextTick(() => {
             if (this.tableData.length > 0) {
@@ -292,6 +430,21 @@ export default {
         this.stopRefreshInterval(); // Stop the interval when the component is destroyed
     },
     methods: {
+<<<<<<< HEAD
+=======
+        initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().clear().destroy(); // Destroy existing instance
+            }
+            $('#dataTable').DataTable({
+                paging: true,
+                searching: true, // You can enable this if you need search functionality
+                ordering: true,
+                info: true,
+                autoWidth: false
+            });
+        },
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
         async fetchImeiList() {
             const toast = useToast();
             try {
@@ -347,9 +500,12 @@ export default {
                 }
             } catch (error) {
                 console.error('Error fetching Hut IDs:', error);
+<<<<<<< HEAD
                 toast.error(`Error ${error.response.statusText}`, {
                     timeout: 2000,
                 }); 
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
             } finally {
                 this.loading = false;
             }
@@ -405,7 +561,11 @@ export default {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error('Authentication token is missing.');
 
+<<<<<<< HEAD
                 let url = `IotDeviceData/LiveDeviceAlertByImeiMac?imeiMac=${this.selectedImei}`;
+=======
+                let url = `IotDeviceData/GetLiveDatasByImeiMac?imeiMac=${this.selectedImei}`;
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
                 // Add device type condition if applicable
                 if (this.selectedDeviceType !== 'All') {
@@ -479,6 +639,7 @@ export default {
             this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
         },
 
+<<<<<<< HEAD
         filterAndSortByStatus() {
             if (this.selectedStatus && this.selectedStatus !== 'All') {
                 // Filter rows by status if a specific status is selected
@@ -491,6 +652,55 @@ export default {
             // After filtering, update the pagination
             this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
 
+=======
+
+        // updatePaginatedData() {
+        //     // Make sure we reset pagination to the first page if data is filtered
+        //     const totalItems = this.paginatedData.length;
+
+        //     // Calculate the start and end indices based on the current page
+        //     const start = (this.currentPage - 1) * this.itemsPerPage;
+        //     const end = this.currentPage * this.itemsPerPage;
+
+        //     // Slice the filtered or sorted data for pagination
+        //     const paginatedItems = this.paginatedData.slice(start, end);
+
+        //     // Ensure that paginated data is updated properly
+        //     this.displayedData = paginatedItems;
+
+        //     // Optionally: Update totalPages if you haven't already
+        //     this.totalPages = Math.ceil(totalItems / this.itemsPerPage);
+        // }
+
+        // ,
+
+        // prevPage() {
+        //     if (this.currentPage > 1) {
+        //         this.currentPage--;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
+        // nextPage() {
+        //     if (this.currentPage < this.totalPages) {
+        //         this.currentPage++;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
+        filterAndSortByStatus() {
+            if (this.selectedStatus && this.selectedStatus !== 'All') {
+                // Filter rows by status if a specific status is selected
+                this.paginatedData = this.tableData.filter(item => this.getStatus(item).status === this.selectedStatus);
+            } else {
+                // If 'All' is selected or no filter is applied, display all rows
+                this.paginatedData = [...this.tableData];
+            }
+
+            // After filtering, update the pagination
+            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
+
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
         },
 
         filterAndSortTable() {
@@ -627,7 +837,11 @@ export default {
             const rows = [];
             // Create table header row
             rows.push([
+<<<<<<< HEAD
                 'Device Type', 'Hut ID', 'Device ID', 'Channel ID', 'Gear Type', 'Date', 'Time', 'Value', 'Status'
+=======
+                'SNo', 'Device Type', 'Hut ID', 'Device ID', 'Channel ID', 'Gear Type', 'Date', 'Time', 'Value', 'Status'
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
             ]);
 
             // Create data rows
@@ -661,7 +875,11 @@ export default {
 
         downloadPdf() {
             const doc = new jsPDF();
+<<<<<<< HEAD
             const headers = ["Device Type", "Hut ID", "Device ID", "Channel ID", "Gear Type", "Date", "Time", "Value", "Status"];
+=======
+            const headers = ["SNo", "Device Type", "Hut ID", "Device ID", "Channel ID", "Gear Type", "Date", "Time", "Value", "Status"];
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
             const rows = this.paginatedData.map(item => [
                 item.sno,
                 item.deviceType,
@@ -683,6 +901,7 @@ export default {
 </script>
 
 <style scoped>
+<<<<<<< HEAD
 :deep(.status-btn) {
     width: 110px !important;
     padding: 4px 7px !important;
@@ -717,6 +936,18 @@ export default {
     justify-content: flex-start;
 }
 
+=======
+/* Custom styling for the dropdown containers */
+.dropdown-container {
+    margin-bottom: 15px;
+    flex: 1;
+    /* Ensure dropdowns take up equal space */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 /* Flex container to align the dropdowns in a row */
 .div-ddl {
     display: flex;
@@ -726,6 +957,7 @@ export default {
 }
 
 /* Styling for the select element */
+<<<<<<< HEAD
 /* .custom-select {
     padding: 8px;
     font-size: 16px;
@@ -733,6 +965,18 @@ export default {
     border-radius: 5px;
     width: 200px;
 } */
+
+/* Styling for the search input */
+.custom-input {
+=======
+.custom-select {
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+}
 
 /* Styling for the search input */
 .custom-input {
@@ -745,13 +989,18 @@ export default {
 
 /* Improve button styles */
 .download-btn {
+<<<<<<< HEAD
     padding: 6px 10px !important;
+=======
+    padding: 9px 14px;
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
     background-color: #308e87;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin-bottom: 20px;
+    font-size: 15px;
 }
 
 .download-btn:hover {
@@ -810,6 +1059,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+<<<<<<< HEAD
     /* margin-bottom: 10px; */
 }
 
@@ -912,5 +1162,75 @@ td {
 .custom-select:focus {
     border-color: #66afe9;
     box-shadow: 0 0 3px rgba(102, 175, 233, .6);
+=======
+    margin-bottom: 10px;
+}
+
+.status-btn {
+    width: 110px;
+    padding: 4px 7px;
+    border: none;
+    font-size: 13px;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-green {
+    background-color: rgba(62, 185, 95, 0.1) !important;
+    color: #3eb95f;
+}
+
+.btn-red {
+    background-color: rgba(231, 75, 43, 0.1) !important;
+    color: #e74b2b;
+}
+
+.btn-gray {
+    background-color: rgba(234, 146, 0, 0.1) !important;
+    color: #ea9200;
+}
+
+/* Optional: Add hover effect for better user experience */
+.status-btn:hover {
+    opacity: 0.9;
+}
+
+/* Centered headers for table */
+th {
+    text-align: center !important;
+}
+
+td {
+    text-align: center !important;
+}
+
+.download-btn {
+    background-color: #4CAF50;
+    /* Green background */
+    color: white;
+    /* White text */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Space between icon and text */
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #45a049;
+    /* Darker green on hover */
+}
+
+.download-icon {
+    width: 20px;
+    height: 20px;
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 }
 </style>

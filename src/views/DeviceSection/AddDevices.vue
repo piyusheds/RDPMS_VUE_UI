@@ -422,8 +422,11 @@ export default {
             this.huts.forEach((hut) => {
                 hut.devices.forEach((device) => {
                     console.log("Device Type:", device.devicetype);
+<<<<<<< HEAD
                     const hutId = `6.${hut.param}`;
                     const ACVoltDeviceId = `2.${device.deviceid}`;
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                     if (device.devicetype === "Ac Voltage") {
                         for (let n = 1; n <= 2; n++) {
                             const channelData = {
@@ -482,8 +485,11 @@ export default {
                         });
                     }
                     else if (device.devicetype === "Dc Current") {
+<<<<<<< HEAD
                         const hutId = `6.${hut.param}`;
                         const DCCurrentDeviceId = `5.${device.deviceid}`;
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                         for (let n = 1; n <= 6; n++) {
                             const channelData = {
                                 sno: 0,
@@ -504,7 +510,10 @@ export default {
                     }
 
                     else if (device.devicetype === "Ac Current") {
+<<<<<<< HEAD
                         const ACCurrentDeviceId = `4.${device.deviceid}`;
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                         for (let n = 1; n <= 6; n++) {
                             const hutId = `6.${hut.param}`;
                             const channelData = {
@@ -610,7 +619,11 @@ export default {
         toggleACVoltageDetails(index) {
             this.huts[index].acVoltageVisible = !this.huts[index].acVoltageVisible;
         },
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
         // addDeviceRow(hutName) {
         //     // Find the hut by name
         //     const hut = this.huts.find(h => h.name === hutName);

@@ -66,6 +66,13 @@
                     </div>
 
                     <div v-show="hut.showDetails" class="hut-details">
+<<<<<<< HEAD
+=======
+                        <b-form-group label="HUT ID:" class="mb-3 ml-3">
+                            <b-form-input v-model="customHutId" placeholder="Enter HUT"
+                                style="width: 22%;"></b-form-input>
+                        </b-form-group>
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                         <div v-for="(device, deviceIndex) in hut.devices" :key="deviceIndex" class="DeviceName_div">
                             <b-form-group label="HUT ID:" class="mb-3 ml-3">
                                 <b-form-input v-model="device.hutId" placeholder="Enter HUT"
@@ -686,7 +693,13 @@ export default {
             } catch (error) {
                 console.error("Error editing item:", error);
             }
+<<<<<<< HEAD
         },
+=======
+        }
+
+        ,
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
 
         async saveHutData() {
@@ -720,6 +733,7 @@ export default {
             };
 
             this.huts.forEach((hut) => {
+<<<<<<< HEAD
                 hut.devices.forEach((device, index) => {
                     console.log("Device Type:", device.devicetype);
                     if (device.devicetype === "AC Voltage" && Array.isArray(device.devices)) {
@@ -738,6 +752,25 @@ export default {
                                     channelUnit: "V", // Voltage unit
                                     channelsParameter: deviceData[`acVoltageChannelsParameter${device.hutId}${device.deviceid}${n}`] || "", // Input parameter
                                 };
+=======
+                hut.devices.forEach((device, deviceData, index) => {
+                    console.log("Device Type:", device.devicetype);
+                    if (device.devicetype === "AC Voltage") {
+                        for (let n = 1; n <= 2; n++) {
+                            const channelData = {
+                                sno: 0,
+                                imeiMac: this.masterInput,
+                                hutId: hut.param,
+                                deviceId: device.deviceid,
+                                deviceName: device.name,
+                                channels: `CH${n}`,
+                                gearType: deviceData[`acVoltageGears${device.hutId}${device.deviceId}${n}`],  // Default value if not set
+                                channelValueRange1: deviceData[`acVoltageValueRange${device.hutId}${device.deviceId}${n}Min`] || null,  // Min value
+                                channelValueRange2: deviceData[`acVoltageValueRange${device.hutId}${device.deviceId}${n}Max`] || null,  // Max value
+                                channelUnit: "V",  // Voltage unit
+                                channelsParameter: deviceData[`acVoltageChannelsParameter${device.hutId}${device.deviceId}${n}`] || "",  // Input parameter
+                            };
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
                                 // Append to acVoltageTable
                                 dataToSend.acVoltageTable.push(channelData);

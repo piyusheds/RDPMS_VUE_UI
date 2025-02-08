@@ -25,14 +25,21 @@
                     <select id="device-select" v-model="selectedDeviceId" @change="fetchgraphdata" class="custom-select"
                         :disabled="!selectedHutId">
                         <option value="" disabled>Select Device ID</option>
+<<<<<<< HEAD
                         <option v-for="device in deviceList.filter(device => device.deviceType === 'Ac Voltage')"
                             :key="device.deviceId" :value="device.deviceId">
+=======
+                        <option v-for="device in deviceList" :key="device.deviceId" :value="device.deviceId">
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
                             (ID: {{ device.deviceId }}) (Type: {{ device.deviceType }}) (Name: {{ device.deviceName }})
                         </option>
                     </select>
                 </div>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
             </div>
         </div>
 

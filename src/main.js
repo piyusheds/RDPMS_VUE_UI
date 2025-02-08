@@ -5,6 +5,10 @@ import store from './store';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import BootstrapVue3 from 'bootstrap-vue-3';
 import VueApexCharts from 'vue3-apexcharts'; // Import vue3-apexcharts
+<<<<<<< HEAD
+=======
+import vuetify from './plugins/vuetify'; 
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css'; // Import default theme CSS
@@ -29,9 +33,12 @@ app.use(router)
   .use(BootstrapVue3)
   .use(vuetify)
   .use(store)
+<<<<<<< HEAD
   .use(Toast, {
     position: 'top-right',     
   })
+=======
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
   .component('apexchart', VueApexCharts) // Register apexchart globally
   .mount('#app');
 
@@ -43,7 +50,11 @@ app.config.globalProperties.$onBeforeRouteEnter = async (to, from, next) => {
     localStorage.removeItem('authToken'); // Remove token
     store.dispatch('logout'); // Optionally, trigger store action to handle further logout processes
     // Redirect to login page
+<<<<<<< HEAD
     next({ name: 'login' });
+=======
+    next({ name: 'sign' });
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
   } else {
     // Proceed with authenticated routes
     next();
@@ -56,5 +67,9 @@ if (!token) {
   // Logout immediately by clearing the session
   localStorage.removeItem('authToken');
   store.dispatch('logout'); // Trigger store action for logout
+<<<<<<< HEAD
   router.push({ name: 'login' }); // Redirect to login page
+=======
+  router.push({ name: 'sign' }); // Redirect to login page
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 }

@@ -60,6 +60,7 @@
 						</div>
 					</div>
 
+<<<<<<< HEAD
 
 
 
@@ -98,6 +99,14 @@
 					<!-- <RouterLink to="/GraphChart" class="nav-item nav-link" active-class="active">
 						<i class="fa fa-chart-line me-2"></i>Graphs
 					</RouterLink> -->
+=======
+					<!-- Signal Icon -->
+					<RouterLink to="/GraphChart" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-chart-line me-2"></i>Graphs
+					</RouterLink>
+
+
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 					<!-- Add Device Icon -->
 					<RouterLink to="/AddDeviceTable" class="nav-item nav-link" active-class="active">
 						<i class="fa fa-cogs me-2"></i>Device Management

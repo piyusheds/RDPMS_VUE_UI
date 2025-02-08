@@ -11,6 +11,7 @@ import HistoryData from '../views/Data/HistoryData.vue';
 import LiveData from '../views/Data/LiveData.vue';
 import EditDevices from '../views/DeviceSection/EditDevices.vue';
 import GraphChart from '../views/Graphs/GraphChart.vue';
+<<<<<<< HEAD
 import Login from '../views/SignIn/Login.vue';
 import HistoryPacket from '../views/HealthData/HistoryPacket.vue';
 import LivePacket from '../views/HealthData/LivePacket.vue';
@@ -19,6 +20,9 @@ import AcCurrentGraph from '../views/Graphs/AcCurrentGraph.vue';
 import DcCurrentGraph from '../views/Graphs/DcCurrentGraph.vue';
 import DcVoltageGraph from '../views/Graphs/DcVoltageGraph.vue';
 import DigitalInput from '../views/Graphs/DigitalInput.vue';
+=======
+
+>>>>>>> e0ad36401195423255db1e02af8817fe8efaedae
 
 const router = createRouter({
   history: createWebHistory(),
