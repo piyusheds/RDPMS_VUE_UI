@@ -1,8 +1,8 @@
 <template>
     <main style="padding-top:10px;">
         <div class="row">
-            <div class="col-12 d-flex justify-content-center ">
-                <h2 class="text-center text-primary">Real-Time Data</h2>
+            <div class="col-12 d-flex justify-content-center mb-2">
+                <h2 class="text-center text-primary">Health Live Data</h2>
                 <div class="d-flex">
                 </div>
             </div>
@@ -53,8 +53,6 @@
                 :enableColResize="true" class="ag-theme-alpine"
                 @first-data-rendered="onFirstDataRendered"></ag-grid-vue>
         </div>
-
-        <!-- </div> -->
     </main>
 </template>
 
@@ -63,7 +61,6 @@ import ApiGatewayServies from '../../Services/ApiGatewayServies';
 import { AgGridVue } from '@ag-grid-community/vue3';
 import '@ag-grid-community/styles/ag-grid.css'
 import '@ag-grid-community/styles/ag-theme-alpine.css'
-import { useToast } from 'vue-toastification';
 
 export default {
     components: {
@@ -95,153 +92,76 @@ export default {
 
             rowData: [], // Row data from your API
             columnDefs: [
-                {
-                    headerName: 'Sno',
-                    valueGetter: 'node.rowIndex + 1',
-                    width: 80,
-                    sortable: true,
-                },
-                {
-                    headerName: 'Device Type',
-                    field: 'deviceType',
-                    sortable: true,
-                    width: 140,
-                    filter: 'agTextColumnFilter',  // Enable text filtering for this column
-                    floatingFilter: true,  // Add floating filter
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,  // Delay for filter input (in milliseconds)
-                    },
-                },
+                { headerName: 'Sno', valueGetter: 'node.rowIndex + 1', width: 80, sortable: true },
                 {
                     headerName: 'Hut ID',
                     field: 'hutId',
+                    tooltipField: 'hutId',
                     sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Device ID',
-                    field: 'deviceId',
-                    sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Channel ID',
-                    field: 'channelId',
-                    sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Gear Type',
-                    field: 'gearType',
-                    width: 250,
-                    valueGetter: (params) => {
-                        // Access gearType from tableData object
-                        return params.data.tableData && params.data.tableData.gearType
-                            ? params.data.tableData.gearType
-                            : 'N/A';
-                    },
-                    tooltipValueGetter: (params) => {
-                        // Access gearType from tableData object for the tooltip
-                        return params.data.tableData && params.data.tableData.gearType
-                            ? params.data.tableData.gearType
-                            : 'N/A';
-                    },
-                    sortable: true,
-                    filter: true,
+                    filter: 'agTextColumnFilter', // Enable text filtering for this column
                     floatingFilter: true, // Add floating filter
+                    filterParams: {
+                        clearButton: true,   // Display a clear button
+                        debounceMs: 500,     // Delay for filter input (in milliseconds)
+                    },
                 },
+                { headerName: 'Device ID', field: 'deviceId', tooltipField: 'deviceId', sortable: true, filter: true, floatingFilter: true },
+                { headerName: 'Device Type', field: 'deviceType', tooltipField: 'deviceType', sortable: true, filter: true, floatingFilter: true },
+
                 {
                     headerName: 'Date',
                     field: 'timeStamp',
                     valueFormatter: (params) => this.formatDate(params.value) || 'N/A', // Format the displayed value
                     sortable: true,
-                    width: 130,
                     filter: 'agDateColumnFilter',  // Use the date filter
                     floatingFilter: true,
                     filterParams: {
                         clearButton: true,
-                        debounceMs: 500,
                         inRangeInclusive: true,
                         comparator: (filterLocalDateAtMidnight, cellValue) => {
-
-                            // Strip time from the Date objects by setting hours, minutes, seconds, and milliseconds to 0
-                            const strippedCellDate = new Date(cellValue.getFullYear(), cellValue.getMonth(), cellValue.getDate());
+                            const cellDate = new Date(cellValue * 1000); // *1000 because JavaScript expects milliseconds
+                            const strippedCellDate = new Date(cellDate.getFullYear(), cellDate.getMonth(), cellDate.getDate());
                             const strippedFilterDate = new Date(filterLocalDateAtMidnight.getFullYear(), filterLocalDateAtMidnight.getMonth(), filterLocalDateAtMidnight.getDate());
-
-                            // Compare the stripped dates (ignoring time)
-                            if (strippedCellDate < strippedFilterDate) {
+                            if (strippedCellDate.getTime() < strippedFilterDate.getTime()) {
                                 return -1;  // Cell date is earlier, so it goes before
-                            } else if (strippedCellDate > strippedFilterDate) {
+                            } else if (strippedCellDate.getTime() > strippedFilterDate.getTime()) {
                                 return 1;  // Cell date is later, so it goes after
                             }
                             return 0;  // Dates are equal
                         }
                     }
-                }
-                ,
-
+                },
 
                 {
-                    headerName: 'Time',
+                    headerName: 'Timestamp',
                     field: 'timeStamp',
-                    valueFormatter: (params) => this.formatTimestamp(params.value) || 'N/A',
-                    sortable: true,
-                    width: 130,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
+                    valueFormatter: (params) => this.formatTimestamp(params.value),
+                    tooltipValueGetter: (params) => {
+                        const timestamp = params.value;
+                        if (!timestamp || isNaN(timestamp)) return 'Invalid Date';
+                        const date = new Date(timestamp.toString().length === 10 ? timestamp * 1000 : timestamp);
+                        return `${date.toLocaleTimeString()}`;
                     },
-                },
-                {
-                    headerName: 'Value',
-                    field: 'value',
-                    width: 100,
                     sortable: true,
-                    filter: 'agNumberColumnFilter',  // Use number filter
-                    floatingFilter: true,
-                    cellStyle: { textAlign: 'center' },
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
+                    filter: true,
+                    floatingFilter: true, // Add floating filter
                 },
+
                 {
                     headerName: 'Status',
-                    cellRenderer: (params) => {
-                        const status = this.getStatus(params.data);
-                        return `<span class="status-btn ${status.statusClass}">${status.status}</span>`;
-                    },
-                    width: 150,
+                    field: 'value',
+                    tooltipField: 'value',
                     sortable: true,
-                    filter: 'agTextColumnFilter',
+                    filter: true,
                     floatingFilter: true,
-                    cellStyle: { textAlign: 'center' },
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
+                    cellRenderer: function (params) {
+                        const status = params.value;
+                        const btnClass = status === true ? 'btn-green' : 'btn-red';
+                        const text = status === true ? 'Pass' : 'Fail';
+                        return `
+                         <span class=" ${btnClass}" style="padding: 6px 10px; border-radius: 8px;">${text}</span>`;
+                    }
+                }
             ],
 
             gridOptions: {
@@ -293,7 +213,6 @@ export default {
     },
     methods: {
         async fetchImeiList() {
-            const toast = useToast();
             try {
                 this.loading = true;
                 const token = localStorage.getItem('authToken');
@@ -308,10 +227,7 @@ export default {
                 });
                 this.imeiList = response.data;
             } catch (error) {
-                // console.error('Error fetching IMEI list:', error);
-                toast.error(`IMEI ${error.response.statusText}`, {
-                    timeout: 2000,
-                }); 
+                console.error('Error fetching IMEI list:', error);
             } finally {
                 this.loading = false;
             }
@@ -347,9 +263,6 @@ export default {
                 }
             } catch (error) {
                 console.error('Error fetching Hut IDs:', error);
-                toast.error(`Error ${error.response.statusText}`, {
-                    timeout: 2000,
-                }); 
             } finally {
                 this.loading = false;
             }
@@ -405,7 +318,7 @@ export default {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error('Authentication token is missing.');
 
-                let url = `IotDeviceData/LiveDeviceAlertByImeiMac?imeiMac=${this.selectedImei}`;
+                let url = `IotDeviceData/LiveDeviceHealthByImeiMac?imeiMac=${this.selectedImei}`;
 
                 // Add device type condition if applicable
                 if (this.selectedDeviceType !== 'All') {
@@ -449,35 +362,34 @@ export default {
 
 
 
-        filterTableData() {
-            if (this.searchQuery.trim() === '') {
-                // If search query is empty, show all data
-                this.paginatedData = [...this.tableData];
-            } else {
-                // Filter data based on search query
-                this.paginatedData = this.tableData.filter(item => {
-                    // Adjust the fields to search according to your needs
-                    const searchFields = [
-                        item.deviceType,
-                        item.hutId,
-                        item.deviceId,
-                        item.channelId,
-                        item.gearType,
-                        item.timeStamp,
-                        item.value,
-                        this.getStatus(item).status
-                    ];
+        // filterTableData() {
+        //     if (this.searchQuery.trim() === '') {
+        //         // If search query is empty, show all data
+        //         this.paginatedData = [...this.tableData];
+        //     } else {
+        //         // Filter data based on search query
+        //         this.paginatedData = this.tableData.filter(item => {
+        //             // Adjust the fields to search according to your needs
+        //             const searchFields = [
+        //                 item.deviceType,
+        //                 item.hutId,
+        //                 item.deviceId,
+        //                 item.channelId,
+        //                 item.gearType,
+        //                 item.timeStamp,
+        //                 item.value,
+        //             ];
 
-                    // Return true if any field matches the search query (case insensitive)
-                    return searchFields.some(field =>
-                        field && field.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
-                    );
-                });
-            }
+        //             // Return true if any field matches the search query (case insensitive)
+        //             return searchFields.some(field =>
+        //                 field && field.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
+        //             );
+        //         });
+        //     }
 
-            // After filtering, update pagination
-            this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
-        },
+        //     // After filtering, update pagination
+        //     this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
+        // },
 
         filterAndSortByStatus() {
             if (this.selectedStatus && this.selectedStatus !== 'All') {
@@ -554,48 +466,6 @@ export default {
             const formattedDate = `${day}-${month}-${year}`;
 
             return formattedDate; // Return formatted date in 'dd-MM-yyyy' format
-        },
-
-        getStatus(item) {
-            // Check for Digital Input
-            if (item.deviceType === 'Digital Input') {
-                const status = item.value === "1" ? 'Active' : 'Inactive';
-                const statusClass = item.value === "1" ? 'btn-green' : 'btn-red'; // Button styles for Active/Inactive
-                return { status, statusClass };
-            }
-
-            // Check for AC Current or DC Current
-            if (item.deviceType === "Ac Current" || item.deviceType === "Dc Current") {
-                const value = item.value;
-                const range1 = item.tableData.channelValueRange1;
-                const range2 = item.tableData.channelValueRange2;
-
-                if (value < range1) {
-                    return { status: 'Low Current', statusClass: 'btn-gray' };
-                } else if (value >= range1 && value <= range2) {
-                    return { status: 'Normal Current', statusClass: 'btn-green' };
-                } else if (value > range2) {
-                    return { status: 'High Current', statusClass: 'btn-red' };
-                }
-            }
-
-            // Check for AC Voltage or DC Voltage
-            if (item.deviceType === "Ac Voltage" || item.deviceType === "Dc Voltage") {
-                const value = item.value;
-                const range1 = item.tableData.channelValueRange1;
-                const range2 = item.tableData.channelValueRange2;
-
-                if (value < range1) {
-                    return { status: 'Low Voltage', statusClass: 'btn-gray' };
-                } else if (value >= range1 && value <= range2) {
-                    return { status: 'Normal Voltage', statusClass: 'btn-green' };
-                } else if (value > range2) {
-                    return { status: 'High Voltage', statusClass: 'btn-red' };
-                }
-            }
-
-            // Default return if no conditions match
-            return { status: 'N/A', statusClass: 'btn-gray' }; // default gray button for unknown statuses
         },
         startRefreshInterval() {
             if (this.dataRefreshInterval) {
@@ -726,13 +596,13 @@ export default {
 }
 
 /* Styling for the select element */
-/* .custom-select {
+.custom-select {
     padding: 8px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 200px;
-} */
+}
 
 /* Styling for the search input */
 .custom-input {

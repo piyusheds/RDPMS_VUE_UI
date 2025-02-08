@@ -7,10 +7,18 @@ import UserTable from '../views/Users/UserTable.vue';
 import Home from '../views/Home.vue';
 import About from '../views/About.vue';
 import AddDevices from '../views/DeviceSection/AddDevices.vue';
-import LoginService from '../Services/LoginService';
 import HistoryData from '../views/Data/HistoryData.vue';
 import LiveData from '../views/Data/LiveData.vue';
 import EditDevices from '../views/DeviceSection/EditDevices.vue';
+import GraphChart from '../views/Graphs/GraphChart.vue';
+import Login from '../views/SignIn/Login.vue';
+import HistoryPacket from '../views/HealthData/HistoryPacket.vue';
+import LivePacket from '../views/HealthData/LivePacket.vue';
+import AcVoltageGraph from '../views/Graphs/AcVoltageGraph.vue';
+import AcCurrentGraph from '../views/Graphs/AcCurrentGraph.vue';
+import DcCurrentGraph from '../views/Graphs/DcCurrentGraph.vue';
+import DcVoltageGraph from '../views/Graphs/DcVoltageGraph.vue';
+import DigitalInput from '../views/Graphs/DigitalInput.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -59,6 +67,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/GraphChart',
+      name: 'GraphChart',
+      component: GraphChart,
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/LiveData',
       name: 'LiveData',
       component: LiveData,
@@ -81,45 +95,81 @@ const router = createRouter({
       component: About,
     },
     {
-      path: '/sign',
-      name: 'sign',
-      component: Sign,
+      path: '/login',
+      name: 'login',
+      component: Login,
     },
+    {
+      path: '/HistoryPacket',
+      name: 'HistoryPacket',
+      component: HistoryPacket,
+    },
+    {
+      path: '/LivePacket',
+      name: 'LivePacket',
+      component: LivePacket,
+    },
+    {
+      path: '/AcVoltageGraph',
+      name: 'AcVoltageGraph',
+      component: AcVoltageGraph,
+    },
+    {
+      path: '/AcCurrentGraph',
+      name: 'AcCurrentGraph',
+      component: AcCurrentGraph,
+    },
+    {
+      path: '/DcCurrentGraph',
+      name: 'DcCurrentGraph',
+      component: DcCurrentGraph,
+    },
+    {
+      path: '/DcVoltageGraph',
+      name: 'DcVoltageGraph',
+      component: DcVoltageGraph,
+    },
+    {
+      path: '/DigitalInput',
+      name: 'DigitalInput',
+      component: DigitalInput,
+    },
+    
   ],
 });
 
 // Navigation guard to check for authentication before accessing protected routes
-router.beforeEach((to, from, next) => {
-  const token = LoginService.getToken(); // Get token from auth service
-  const isAuthenticated = !!token;
+// router.beforeEach((to, from, next) => {
+//   const token = LoginService.getToken(); // Get token from auth service
+//   const isAuthenticated = !!token;
 
-  // If route requires authentication and user is not authenticated, redirect to sign page
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'sign' }); // Redirect to the sign page if not authenticated
-  } else {
-    next(); // Proceed to the route
-  }
-});
+//   // If route requires authentication and user is not authenticated, redirect to sign page
+//   if (to.meta.requiresAuth && !isAuthenticated) {
+//     next({ name: 'sign' }); // Redirect to the sign page if not authenticated
+//   } else {
+//     next(); // Proceed to the route
+//   }
+// });
 
-// Store the route in localStorage only if not already storing it to prevent the loop
-router.beforeEach((to, from, next) => {
-  if (to.path !== from.path) {
-    // Store the current route if it isn't already stored in localStorage
-    localStorage.setItem('currentRoute', to.fullPath);
-  }
-  next();
-});
+// // Store the route in localStorage only if not already storing it to prevent the loop
+// router.beforeEach((to, from, next) => {
+//   if (to.path !== from.path) {
+//     // Store the current route if it isn't already stored in localStorage
+//     localStorage.setItem('currentRoute', to.fullPath);
+//   }
+//   next();
+// });
 
-// Handle restoring the route after a page refresh, but only if authenticated
-router.afterEach((to) => {
-  const token = LoginService.getToken();
-  if (token) {
-    const storedRoute = localStorage.getItem('currentRoute');
-    if (storedRoute && to.fullPath !== storedRoute) {
-      // Prevent navigating to the stored route again if already on it
-      router.push(storedRoute); // Restore the previous route from localStorage
-    }
-  }
-});
+// // Handle restoring the route after a page refresh, but only if authenticated
+// router.afterEach((to) => {
+//   const token = LoginService.getToken();
+//   if (token) {
+//     const storedRoute = localStorage.getItem('currentRoute');
+//     if (storedRoute && to.fullPath !== storedRoute) {
+//       // Prevent navigating to the stored route again if already on it
+//       router.push(storedRoute); // Restore the previous route from localStorage
+//     }
+//   }
+// });
 
 export default router;

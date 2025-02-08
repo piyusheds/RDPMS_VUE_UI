@@ -10,7 +10,7 @@
                             <a href="index.html" class="">
                                 <h3 class="text-primary">HOWRAH</h3>
                             </a>
-                            <h3>Sign Up</h3>
+                            <h3>Sign Up</h3> 
                         </div>
 
                         <form @submit.prevent="submitForm">
@@ -145,6 +145,13 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary w-100 py-3">Sign Up</button>
+                                    <button type="button" @click="showToast">Show Toast</button>
+                                </div>
+                            </div>
+
+                            <div v-if="showToastMessage" class="toast-container">
+                                <div class="toast toast-success">
+                                    <span>{{ toastMessage }}</span>
                                 </div>
                             </div>
                         </form>
@@ -175,6 +182,7 @@
 import ApiGatewayServies from '../Services/ApiGatewayServies';
 import { useToast } from 'vue-toastification';
 
+
 export default {
     data() {
         return {
@@ -197,6 +205,10 @@ export default {
             loading: false,
             showPassword: false,
             showConfirmPassword: false,
+            // successMessage: '',
+            // errorMessage: '',
+            // showToastMessage: false, // For manual toast visibility in this example
+            // toastMessage: '',
         };
     },
     methods: {
@@ -262,6 +274,11 @@ export default {
         // Validate the form
         isFormValid() {
             return this.formData.password === this.formData.confirmPassword && this.formData.password.length > 0;
+        },
+
+        showToast() {
+            const toast = useToast();
+            toast.success('Toast is working!'); // You can show a toast for testing here.
         },
     },
 };

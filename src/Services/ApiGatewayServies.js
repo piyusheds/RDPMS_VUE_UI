@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base URL for your API gateway
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5103/api/',
+  baseURL: 'http://13.233.79.234:8080/api/',
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

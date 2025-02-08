@@ -1,9 +1,22 @@
 <template>
     <main style="padding-top:10px;">
         <div class="row">
-            <div class="col-12 d-flex justify-content-center ">
-                <h2 class="text-center text-primary">Real-Time Data</h2>
+            <div class="col-12 d-flex justify-content-between">
+                <h2 class="text-center text-primary">Live Data Overview</h2>
                 <div class="d-flex">
+                    <div class="dropdown-container">
+                        <label for="search-bar" style="margin-right: 10px;">Search</label>
+                        <input type="text" id="search-bar" v-model="searchQuery" @input="filterTableData"
+                            placeholder="Search by Device ID, Hut ID, or any other field" class="custom-input"
+                            :disabled="!selectedImei" style="margin-right: 20px;" />
+                    </div>
+                    <button @click="downloadData" class="download-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="download-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -19,15 +32,26 @@
                 </div>
 
 
+                <!-- Hut ID Dropdown -->
                 <div class="dropdown-container">
                     <label for="hutId-select" style="margin-right: 10px;">Hut ID</label>
                     <select id="hutId-select" v-model="selectedHutId" @change="filterDataByHutId" class="custom-select"
                         :disabled="!selectedImei">
+                        <!-- Default "Select Hut ID" option with empty value -->
                         <option value="" disabled>Select Hut ID</option>
+
+                        <!-- Add the "All" option -->
                         <option value="All">All</option>
+
+                        <!-- Loop through the hutIdList and populate the dropdown -->
                         <option v-for="hutId in hutIdList" :key="hutId" :value="hutId">{{ hutId }}</option>
                     </select>
                 </div>
+
+
+
+
+
                 <div class="dropdown-container">
                     <label for="deviceType-select" style="margin-right: 10px;">Device Type</label>
                     <select id="deviceType-select" v-model="selectedDeviceType" @change="filterAndSortTable"
@@ -37,38 +61,78 @@
                     </select>
                 </div>
 
-                <button @click="downloadData" class="download-btn ">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                            stroke="currentColor" class="download-icon">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                    </button>
+                <!-- New Dropdown for Status Filter -->
+                <div class="dropdown-container">
+                    <label for="status-select" style="margin-right: 10px;">Status</label>
+                    <select id="status-select" v-model="selectedStatus" @change="filterAndSortByStatus"
+                        class="custom-select" style="width:118px" :disabled="!selectedImei">
+                        <option value="">All</option>
+                        <option v-for="status in statusOptions" :key="status" :value="status">{{ status }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <!-- Download Button -->
             </div>
         </div>
 
+        <!-- Table Data -->
         <div class="table-responsive" style="margin-top: 0px!important">
-            <ag-grid-vue :columnDefs="columnDefs" :rowData="paginatedData" :pagination="true"
-                :paginationPageSize="itemsPerPage" :domLayout="'autoHeight'" :enableSorting="true" :enableFilter="true"
-                :enableColResize="true" class="ag-theme-alpine"
-                @first-data-rendered="onFirstDataRendered"></ag-grid-vue>
+            <table id="dataTable" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th @click="sortTable('SNo')">Sno</th>
+                        <th @click="sortTable('deviceType')">Device Type</th>
+                        <th @click="sortTable('hutId')">Hut ID</th>
+                        <th @click="sortTable('deviceId')">Device ID</th>
+                        <th @click="sortTable('channelId')">Channel ID</th>
+                        <th @click="sortTable('gearType')">Gear Type</th>
+                        <th @click="sortTable('timeStamp')">Date</th>
+                        <th @click="sortTable('timeStamp')">Time</th>
+                        <th style="text-align: center;" @click="sortTable('value')">Value</th>
+                        <th style="text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in paginatedData" :key="item.imeiMac">
+                        <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                        <td>{{ item.deviceType }}</td>
+                        <td>{{ item.hutId }}</td>
+                        <td>{{ item.deviceId }}</td>
+                        <td>{{ item.channelId }}</td>
+                        <td style="width: 195px;">{{ item.tableData.gearType || 'N/A' }}</td>
+                        <td>{{ formatDate(item.timeStamp) || 'N/A' }}</td>
+                        <td>{{ formatTimestamp(item.timeStamp) || 'N/A' }}</td>
+                        <td style="text-align: center;">{{ item.value || 'N/A' }}</td>
+                        <td style="text-align: center;">
+                            <button :class="['status-btn', getStatus(item).statusClass]">
+                                {{ getStatus(item).status }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- </div> -->
+        <!-- 
+        <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1" class="pagination-btn">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-btn">Next</button>
+        </div> -->
     </main>
 </template>
 
 <script>
 import ApiGatewayServies from '../../Services/ApiGatewayServies';
-import { AgGridVue } from '@ag-grid-community/vue3';
-import '@ag-grid-community/styles/ag-grid.css'
-import '@ag-grid-community/styles/ag-theme-alpine.css'
-import { useToast } from 'vue-toastification';
+import { jsPDF } from 'jspdf'; // For PDF export
+import * as XLSX from 'xlsx'; // For Excel export
+import $ from 'jquery';
+import 'datatables.net';
+import 'datatables.net-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
 export default {
-    components: {
-        AgGridVue
-    },
     data() {
         return {
             imeiList: [], // Holds the fetched IMEI list
@@ -93,169 +157,6 @@ export default {
             hutIdList: [], // List of Hut IDs fetched based on the selected IMEI
             selectedHutId: "",
 
-            rowData: [], // Row data from your API
-            columnDefs: [
-                {
-                    headerName: 'Sno',
-                    valueGetter: 'node.rowIndex + 1',
-                    width: 80,
-                    sortable: true,
-                },
-                {
-                    headerName: 'Device Type',
-                    field: 'deviceType',
-                    sortable: true,
-                    width: 140,
-                    filter: 'agTextColumnFilter',  // Enable text filtering for this column
-                    floatingFilter: true,  // Add floating filter
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,  // Delay for filter input (in milliseconds)
-                    },
-                },
-                {
-                    headerName: 'Hut ID',
-                    field: 'hutId',
-                    sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Device ID',
-                    field: 'deviceId',
-                    sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Channel ID',
-                    field: 'channelId',
-                    sortable: true,
-                    width: 100,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Gear Type',
-                    field: 'gearType',
-                    width: 250,
-                    valueGetter: (params) => {
-                        // Access gearType from tableData object
-                        return params.data.tableData && params.data.tableData.gearType
-                            ? params.data.tableData.gearType
-                            : 'N/A';
-                    },
-                    tooltipValueGetter: (params) => {
-                        // Access gearType from tableData object for the tooltip
-                        return params.data.tableData && params.data.tableData.gearType
-                            ? params.data.tableData.gearType
-                            : 'N/A';
-                    },
-                    sortable: true,
-                    filter: true,
-                    floatingFilter: true, // Add floating filter
-                },
-                {
-                    headerName: 'Date',
-                    field: 'timeStamp',
-                    valueFormatter: (params) => this.formatDate(params.value) || 'N/A', // Format the displayed value
-                    sortable: true,
-                    width: 130,
-                    filter: 'agDateColumnFilter',  // Use the date filter
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                        inRangeInclusive: true,
-                        comparator: (filterLocalDateAtMidnight, cellValue) => {
-
-                            // Strip time from the Date objects by setting hours, minutes, seconds, and milliseconds to 0
-                            const strippedCellDate = new Date(cellValue.getFullYear(), cellValue.getMonth(), cellValue.getDate());
-                            const strippedFilterDate = new Date(filterLocalDateAtMidnight.getFullYear(), filterLocalDateAtMidnight.getMonth(), filterLocalDateAtMidnight.getDate());
-
-                            // Compare the stripped dates (ignoring time)
-                            if (strippedCellDate < strippedFilterDate) {
-                                return -1;  // Cell date is earlier, so it goes before
-                            } else if (strippedCellDate > strippedFilterDate) {
-                                return 1;  // Cell date is later, so it goes after
-                            }
-                            return 0;  // Dates are equal
-                        }
-                    }
-                }
-                ,
-
-
-                {
-                    headerName: 'Time',
-                    field: 'timeStamp',
-                    valueFormatter: (params) => this.formatTimestamp(params.value) || 'N/A',
-                    sortable: true,
-                    width: 130,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Value',
-                    field: 'value',
-                    width: 100,
-                    sortable: true,
-                    filter: 'agNumberColumnFilter',  // Use number filter
-                    floatingFilter: true,
-                    cellStyle: { textAlign: 'center' },
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-                {
-                    headerName: 'Status',
-                    cellRenderer: (params) => {
-                        const status = this.getStatus(params.data);
-                        return `<span class="status-btn ${status.statusClass}">${status.status}</span>`;
-                    },
-                    width: 150,
-                    sortable: true,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    cellStyle: { textAlign: 'center' },
-                    filterParams: {
-                        clearButton: true,
-                        debounceMs: 500,
-                    },
-                },
-            ],
-
-            gridOptions: {
-                enableBrowserTooltips: true,
-                rowSelection: 'single',
-                pagination: true,
-                paginationPageSize: 10,
-                domLayout: 'normal',
-                quickFilterText: '',
-                floatingFilter: true,  // Enable floating filters globally
-            },
-
-            // },
-
         };
     },
     created() {
@@ -267,6 +168,7 @@ export default {
     },
     watch: {
         selectedImei(newImei) {
+            console.log('selectedImei changed:', newImei);
             if (newImei) {
                 this.fetchTableData(); // Fetch table data when IMEI changes
                 this.startRefreshInterval(); // Start the interval
@@ -281,6 +183,16 @@ export default {
             this.applyFiltersAndSorting(); // Apply sorting/filtering when selectedStatus changes
         }
     },
+
+    computed: {
+        totalPages() {
+            return Math.ceil(this.tableData.length / this.itemsPerPage);
+        },
+    },
+    // beforeDestroy() {
+    //     // Clear the interval to avoid unnecessary API calls when the component is destroyed
+    //     clearInterval(this.dataRefreshInterval);
+    // },
     mounted() {
         this.$nextTick(() => {
             if (this.tableData.length > 0) {
@@ -292,8 +204,19 @@ export default {
         this.stopRefreshInterval(); // Stop the interval when the component is destroyed
     },
     methods: {
+        initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().clear().destroy(); // Destroy existing instance
+            }
+            $('#dataTable').DataTable({
+                paging: true,
+                searching: true, // You can enable this if you need search functionality
+                ordering: true,
+                info: true,
+                autoWidth: false
+            });
+        },
         async fetchImeiList() {
-            const toast = useToast();
             try {
                 this.loading = true;
                 const token = localStorage.getItem('authToken');
@@ -308,10 +231,7 @@ export default {
                 });
                 this.imeiList = response.data;
             } catch (error) {
-                // console.error('Error fetching IMEI list:', error);
-                toast.error(`IMEI ${error.response.statusText}`, {
-                    timeout: 2000,
-                }); 
+                console.error('Error fetching IMEI list:', error);
             } finally {
                 this.loading = false;
             }
@@ -347,9 +267,6 @@ export default {
                 }
             } catch (error) {
                 console.error('Error fetching Hut IDs:', error);
-                toast.error(`Error ${error.response.statusText}`, {
-                    timeout: 2000,
-                }); 
             } finally {
                 this.loading = false;
             }
@@ -405,7 +322,7 @@ export default {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error('Authentication token is missing.');
 
-                let url = `IotDeviceData/LiveDeviceAlertByImeiMac?imeiMac=${this.selectedImei}`;
+                let url = `IotDeviceData/GetLiveDatasByImeiMac?imeiMac=${this.selectedImei}`;
 
                 // Add device type condition if applicable
                 if (this.selectedDeviceType !== 'All') {
@@ -479,6 +396,41 @@ export default {
             this.totalPages = Math.ceil(this.paginatedData.length / this.itemsPerPage);
         },
 
+
+        // updatePaginatedData() {
+        //     // Make sure we reset pagination to the first page if data is filtered
+        //     const totalItems = this.paginatedData.length;
+
+        //     // Calculate the start and end indices based on the current page
+        //     const start = (this.currentPage - 1) * this.itemsPerPage;
+        //     const end = this.currentPage * this.itemsPerPage;
+
+        //     // Slice the filtered or sorted data for pagination
+        //     const paginatedItems = this.paginatedData.slice(start, end);
+
+        //     // Ensure that paginated data is updated properly
+        //     this.displayedData = paginatedItems;
+
+        //     // Optionally: Update totalPages if you haven't already
+        //     this.totalPages = Math.ceil(totalItems / this.itemsPerPage);
+        // }
+
+        // ,
+
+        // prevPage() {
+        //     if (this.currentPage > 1) {
+        //         this.currentPage--;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
+        // nextPage() {
+        //     if (this.currentPage < this.totalPages) {
+        //         this.currentPage++;
+        //         this.updatePaginatedData();
+        //     }
+        // },
+
         filterAndSortByStatus() {
             if (this.selectedStatus && this.selectedStatus !== 'All') {
                 // Filter rows by status if a specific status is selected
@@ -538,22 +490,38 @@ export default {
 
             return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
         },
+
         formatDate(timestamp) {
             if (!timestamp) {
-                return null; // Return null if the timestamp is null or undefined
+                return null;
             }
 
-            const date = new Date(timestamp * 1000); // Convert epoch timestamp (seconds) to Date object
+            const date = new Date(timestamp * 1000);
 
-            // Get day, month, and year
-            const day = String(date.getDate()).padStart(2, '0'); // Ensure two-digit day
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure two-digit month (months are zero-indexed)
-            const year = date.getFullYear();
+            let hours = date.getUTCHours();
+            let minutes = date.getUTCMinutes();
 
-            // Format the date as 'dd-MM-yyyy'
-            const formattedDate = `${day}-${month}-${year}`;
+            hours += 5;
+            minutes += 30;
 
-            return formattedDate; // Return formatted date in 'dd-MM-yyyy' format
+            if (minutes >= 60) {
+                minutes -= 60;
+                hours += 1;
+            }
+
+            if (hours >= 24) {
+                hours -= 24;
+                date.setUTCDate(date.getUTCDate() + 1); // Increment the day
+            }
+
+            const day = date.getUTCDate();
+            const month = date.getUTCMonth() + 1;
+            const year = date.getUTCFullYear();
+
+            const formattedDay = day < 10 ? `0${day}` : day;
+            const formattedMonth = month < 10 ? `0${month}` : month;
+
+            return `${formattedDay}/${formattedMonth}/${year}`;
         },
 
         getStatus(item) {
@@ -627,7 +595,7 @@ export default {
             const rows = [];
             // Create table header row
             rows.push([
-                'Device Type', 'Hut ID', 'Device ID', 'Channel ID', 'Gear Type', 'Date', 'Time', 'Value', 'Status'
+                'SNo', 'Device Type', 'Hut ID', 'Device ID', 'Channel ID', 'Gear Type', 'Date', 'Time', 'Value', 'Status'
             ]);
 
             // Create data rows
@@ -661,7 +629,7 @@ export default {
 
         downloadPdf() {
             const doc = new jsPDF();
-            const headers = ["Device Type", "Hut ID", "Device ID", "Channel ID", "Gear Type", "Date", "Time", "Value", "Status"];
+            const headers = ["SNo", "Device Type", "Hut ID", "Device ID", "Channel ID", "Gear Type", "Date", "Time", "Value", "Status"];
             const rows = this.paginatedData.map(item => [
                 item.sno,
                 item.deviceType,
@@ -683,31 +651,7 @@ export default {
 </script>
 
 <style scoped>
-:deep(.status-btn) {
-    width: 110px !important;
-    padding: 4px 7px !important;
-    border: none !important;
-    font-size: 13px !important;
-    color: white !important;
-    border-radius: 10px !important;
-    cursor: pointer !important;
-}
-
-:deep(.btn-green) {
-    background-color: rgba(62, 185, 95, 0.1) !important;
-    color: #3eb95f !important;
-}
-
-:deep(.btn-red) {
-    background-color: rgba(231, 75, 43, 0.1) !important;
-    color: #e74b2b !important;
-}
-
-:deep(.btn-gray) {
-    background-color: rgba(234, 146, 0, 0.1) !important;
-    color: #ea9200 !important;
-}
-
+/* Custom styling for the dropdown containers */
 .dropdown-container {
     margin-bottom: 15px;
     flex: 1;
@@ -726,13 +670,13 @@ export default {
 }
 
 /* Styling for the select element */
-/* .custom-select {
+.custom-select {
     padding: 8px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 200px;
-} */
+}
 
 /* Styling for the search input */
 .custom-input {
@@ -745,13 +689,14 @@ export default {
 
 /* Improve button styles */
 .download-btn {
-    padding: 6px 10px !important;
+    padding: 9px 14px;
     background-color: #308e87;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     margin-bottom: 20px;
+    font-size: 15px;
 }
 
 .download-btn:hover {
@@ -810,7 +755,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* margin-bottom: 10px; */
+    margin-bottom: 10px;
 }
 
 .status-btn {
@@ -878,39 +823,5 @@ td {
 .download-icon {
     width: 20px;
     height: 20px;
-}
-
-.div-ddl {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    /* margin-bottom: 10px; */
-}
-
-.dropdown-container {
-    display: inline-block;
-    margin-right: 15px;
-}
-
-.dropdown-label {
-    font-size: 12px;
-    margin-right: 5px;
-}
-
-.custom-select {
-    font-size: 12px;
-    padding: 5px 8px;
-    width: 132px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    box-shadow: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.custom-select:focus {
-    border-color: #66afe9;
-    box-shadow: 0 0 3px rgba(102, 175, 233, .6);
 }
 </style>

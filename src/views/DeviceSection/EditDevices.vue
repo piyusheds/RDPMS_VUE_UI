@@ -66,11 +66,11 @@
                     </div>
 
                     <div v-show="hut.showDetails" class="hut-details">
-                        <b-form-group label="HUT ID:" class="mb-3 ml-3">
-                            <b-form-input v-model="hut.hutId" placeholder="Enter HUT"
-                                style="width: 22%;"></b-form-input>
-                        </b-form-group>
                         <div v-for="(device, deviceIndex) in hut.devices" :key="deviceIndex" class="DeviceName_div">
+                            <b-form-group label="HUT ID:" class="mb-3 ml-3">
+                                <b-form-input v-model="device.hutId" placeholder="Enter HUT"
+                                    style="width: 22%;"></b-form-input>
+                            </b-form-group>
                             <input v-model="device.name" placeholder="Device Name" />
                             <b-form-select v-model="device.devicetype" :options="DeviceType"
                                 id="Device_Type_DDL"></b-form-select>
@@ -110,7 +110,6 @@
                                 <div v-show="device.detailsVisible" class="device-details-content">
                                     <p><strong>Device ID:</strong> {{ device.deviceid }}</p>
                                     <p><strong>Device Name:</strong> {{ device.name }}</p>
-                                    <p><strong>Device Name:</strong> {{ device.name }}</p>
 
                                     <div v-if="device.devicetype === 'AC Voltage'" class="ac-voltage-content">
                                         <div class="d-flex align-items-center"
@@ -120,7 +119,6 @@
                                                     class="mb-3 mr-3"></b-form-group>
                                             </b-form-group>
 
-                                            <!-- Gear Type -->
                                             <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
                                                 style="margin-left:25px;">
                                                 <b-form-select
@@ -130,7 +128,6 @@
 
                                             </b-form-group>
 
-                                            <!-- Value Range -->
                                             <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
                                                 style="width: 21.5%;">
                                                 <div class="d-flex align-items-center">
@@ -148,7 +145,6 @@
                                                 </div>
                                             </b-form-group>
 
-                                            <!-- Parameter Name -->
                                             <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
                                                 <b-form-input
                                                     v-model="deviceData['acVoltageChannelsParameter' + device.hutId + device.deviceid + (index + 1)]"
@@ -159,16 +155,15 @@
                                     </div>
 
 
-                                    
+                                    <!-- 
                                     <div v-if="device.devicetypeee === 'AC Voltage'" class="ac-voltage-content">
-                                        <div class="d-flex align-items-center"
-                                            v-for="(deviceData, index) in 2" :key="'ac-voltage-' + index">
+                                        <div class="d-flex align-items-center" v-for="(deviceData, index) in 2"
+                                            :key="'ac-voltage-' + index">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + (index + 1)"
                                                     class="mb-3 mr-3"></b-form-group>
                                             </b-form-group>
 
-                                            <!-- Gear Type -->
                                             <b-form-group :label="'Gear Type'" class="mb-3 mr-3"
                                                 style="margin-left:25px;">
                                                 <b-form-select
@@ -178,7 +173,6 @@
 
                                             </b-form-group>
 
-                                            <!-- Value Range -->
                                             <b-form-group label="Value Range" class="mb-3 ml-3 div_margin_left"
                                                 style="width: 21.5%;">
                                                 <div class="d-flex align-items-center">
@@ -196,7 +190,6 @@
                                                 </div>
                                             </b-form-group>
 
-                                            <!-- Parameter Name -->
                                             <b-form-group label="Parameter Name:" class="mb-3 div_margin_left">
                                                 <b-form-input
                                                     v-model="deviceData['acVoltageChannelsParameter' + device.hutId + device.deviceid + (index + 1)]"
@@ -204,7 +197,7 @@
                                                     :id="'ac-voltage-input-' + (index + 1)"></b-form-input>
                                             </b-form-group>
                                         </div>
-                                    </div>
+                                    </div> -->
 
 
                                     <!-- <pre>{{ device }}</pre> -->
@@ -373,7 +366,8 @@
                         </ul>
                     </div>
                 </li>
-                <b-button variant="primary" @click="saveHutData">Save Hut</b-button>
+                <b-button variant="primary" @click="saveHutData">Update Hut</b-button>
+                <p><strong>Custom HUT ID:</strong> {{ customHutId }}</p>
                 <pre>{{ jsonData }}</pre>
             </ul>
         </b-card>
@@ -391,7 +385,6 @@ export default {
 
     data() {
         return {
-            // General visibility toggles
             acVoltageVisible: false,
             isAcCurrentVisible: false,
             isDcVoltVisible: false,
@@ -407,7 +400,7 @@ export default {
             gearOptions: [
                 { value: '', text: "Select Gears" },
                 "Signals", "Points", "DC Track Circuits", "Axle Counters", "AF Track Circuits",
-                "Level Crossing Gates", "Relays", "Electronic Interlocking","Integrated Power Supply (IPS) / Battery Charger", "Earth Leakage Detector (ELD)", "Cables", "Block Instruments", "UFSBI",
+                "Level Crossing Gates", "Relays", "Electronic Interlocking", "Integrated Power Supply (IPS) / Battery Charger", "Earth Leakage Detector (ELD)", "Cables", "Block Instruments", "UFSBI",
                 "Ambient Temperature and Humidity"
             ],
 
@@ -426,6 +419,7 @@ export default {
 
             selectedMaster: '',
             masterInput: '',
+            customHutId: '',
 
             // Location and station info
             stationCode: '',
@@ -438,12 +432,50 @@ export default {
             // Device types available
             DeviceType: [
                 { value: '', text: "Select Device Type" },
-                "AC Voltage", "AC Current", "DC Voltage", "DC Current", "Digital Input"
+                { value: 'AC Voltage', text: "AC Voltage" },
+                { value: 'AC Current', text: "AC Current" },
+                { value: 'DC Voltage', text: "DC Voltage" },
+                { value: 'DC Current', text: "DC Current" },
+                { value: 'Digital Input', text: "Digital Input" }
             ],
+
+            updateDeviceChannels(device) {
+                let channelCount = 0;
+
+                if (["AC Voltage", "DC Voltage"].includes(device.devicetype)) {
+                    channelCount = 2; // 2 rows for AC Voltage & DC Voltage
+                } else if (["AC Current", "DC Current"].includes(device.devicetype)) {
+                    channelCount = 6; // 6 rows for AC Current & DC Current
+                } else if (device.devicetype === "Digital Input") {
+                    channelCount = 16; // 16 rows for Digital Input
+                }
+
+                device.devices = Array.from({ length: channelCount }, (_, index) => ({
+                    gearType: "",
+                    minValue: "",
+                    maxValue: "",
+                    parameterName: "",
+                    [`${device.devicetype.replace(" ", "")}Gears${device.hutId}${device.deviceid}${index + 1}`]: "",
+                    [`${device.devicetype.replace(" ", "")}Param${device.hutId}${device.deviceid}${index + 1}`]: "",
+                    [`${device.devicetype.replace(" ", "")}Value${device.hutId}${device.deviceid}${index + 1}`]: ""
+                }));
+            },
         };
     },
     name: 'EditDevices',
 
+    watch: {
+        "hut.devices": {
+            handler(newDevices) {
+                if (newDevices.length > 0) {
+                    this.customHutId = newDevices[0].hutId;
+                } else {
+                    this.customHutId = '';
+                }
+            },
+            deep: true
+        }
+    },
 
 
     methods: {
@@ -459,6 +491,7 @@ export default {
                     devicetype: '',
                     deviceId: '',
                     detailsVisible: false,
+                    channels: []
                 },],
                 showDetails: false,
             });
@@ -653,9 +686,7 @@ export default {
             } catch (error) {
                 console.error("Error editing item:", error);
             }
-        }
-        
-        ,
+        },
 
 
         async saveHutData() {
@@ -675,7 +706,7 @@ export default {
                     hut.devices.map((device) => ({
                         sno: 0,
                         imeiMac: this.masterInput,
-                        hutId: hut.param,           // Reference the hut's param
+                        hutId: device.hutId,           // Reference the hut's param
                         deviceType: device.devicetype,  // Access device's devicetype
                         deviceName: device.name,    // Access device's name
                         deviceId: device.deviceid,  // Access device's deviceid
@@ -689,39 +720,44 @@ export default {
             };
 
             this.huts.forEach((hut) => {
-                hut.devices.forEach((device, deviceData , index) => {
+                hut.devices.forEach((device, index) => {
                     console.log("Device Type:", device.devicetype);
-                    if (device.devicetype === "AC Voltage") {
-                        for (let n = 1; n <= 2; n++) {
-                            const channelData = {
-                                sno: 0,
-                                imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
-                                deviceName: device.name,
-                                channels: `CH${n}`,
-                                gearType: deviceData['acVoltageGears' + device.hutId + device.deviceid + (index + 1)] || "AC Voltage",  // Default value if not set
-                                channelValueRange1: deviceData['acVoltageValueRange' + device.hutId + device.deviceid + (index + 1) + 'Min'] || null,  // Min value
-                                channelValueRange2: deviceData['acVoltageValueRange' + device.hutId + device.deviceid + (index + 1) + 'Max'] || null,  // Max value
-                                channelUnit: "V",  // Voltage unit
-                                channelsParameter: deviceData['acVoltageChannelsParameter' + device.hutId + device.deviceid + (index + 1)] || "",  // Input parameter
-                            };
+                    if (device.devicetype === "AC Voltage" && Array.isArray(device.devices)) {
+                        device.devices.forEach((deviceData) => {
+                            for (let n = 1; n <= 2; n++) {
+                                const channelData = {
+                                    sno: 0,
+                                    imeiMac: this.masterInput,
+                                    hutId: device.hutId,
+                                    deviceId: device.deviceid,
+                                    deviceName: device.name,
+                                    channels: `CH${n}`,
+                                    gearType: deviceData[`acVoltageGears${device.hutId}${device.deviceid}${n}`] || "N/A", // Default value if not set
+                                    channelValueRange1: deviceData[`acVoltageValueRange${device.hutId}${device.deviceid}${n}Min`] || null, // Min value
+                                    channelValueRange2: deviceData[`acVoltageValueRange${device.hutId}${device.deviceid}${n}Max`] || null, // Max value
+                                    channelUnit: "V", // Voltage unit
+                                    channelsParameter: deviceData[`acVoltageChannelsParameter${device.hutId}${device.deviceid}${n}`] || "", // Input parameter
+                                };
 
-                            dataToSend.acVoltageTable.push(channelData);
-                        }
+                                // Append to acVoltageTable
+                                dataToSend.acVoltageTable.push(channelData);
+                            }
+                        });
                     }
+                    // });
+
                     else if (device.devicetype === "DC Voltage") {
                         const channelData = [];
 
                         for (let n = 1; n <= 2; n++) {
                             const channel = {
                                 channelNumber: String(n),
-                                gearType: "DC Voltage",
-                                channelsParameter: "Voltage Parameter",
-                                channelValueRange1: device[`dcVoltageValueRange${n}Min`],
-                                channelValueRange2: device[`dcVoltageValueRange${n}Max`],
+                                gearType: deviceData[`dcVoltageGears${device.hutId}${device.deviceId}${n}`],
+                                channelValueRange1: deviceData[`dcVoltageValueRange${device.hutId}${device.deviceId}${n}Min`],
+                                channelValueRange2: deviceData[`dcVoltageValueRange${device.hutId}${device.deviceId}${n}Max`],
                                 channelUnit: "V",
-                                parameterName: device[`dcVoltageInput${n}`],
+                                channelsParameter: deviceData[`dcVoltageChannelsParameter${device.hutId}${device.deviceId}${n}`],
+                                // parameterName: device[`dcVoltageInput${n}`],
                             };
 
                             channelData.push(channel);
@@ -753,11 +789,11 @@ export default {
                                 deviceId: device.deviceid,
                                 deviceName: device.name,
                                 channels: `CH${n}`,
-                                gearType: device[`dcCurrentGears${hut.name}${n}`] || "DC Current",
-                                channelValueRange1: device[`dcCurrentValueRange${hut.name}${n}Min`] || null,
-                                channelValueRange2: device[`dcCurrentValueRange${hut.name}${n}Max`] || null,
+                                gearType: deviceData[`dcCurrentGears${device.hutId}${device.deviceId}${n}`],
+                                channelValueRange1: deviceData[`dcCurrentValueRange${device.hutId}${device.deviceId}${n}Min`] || null,
+                                channelValueRange2: deviceData[`dcCurrentValueRange${device.hutId}${device.deviceId}${n}Max`] || null,
                                 channelUnit: "A",
-                                channelsParameter: device[`dcCurrentInput${hut.name}${n}`] || "",
+                                channelsParameter: deviceData[`dcCurrentChannelsParameter${device.hutId}${device.deviceId}${n}`] || "",
                             };
 
                             dataToSend.dcCurrentTable.push(channelData);
@@ -774,11 +810,11 @@ export default {
                                 deviceId: device.deviceid,
                                 deviceName: device.name,
                                 channels: `CH${n}`,
-                                gearType: deviceData['acCurrentGears' + device.hutId + device.deviceid + (index + 1)] || "AC Current",
-                                channelValueRange1: deviceData['acCurrentValueRange' + device.hutId + device.deviceid + (index + 1) + 'Min'] || null,
-                                channelValueRange2: deviceData['acCurrentValueRange' + device.hutId + device.deviceid + (index + 1) + 'Max'] || null,
+                                gearType: deviceData[`acCurrentGears${device.hutId}${device.deviceId}${n}`],
+                                channelValueRange1: deviceData[`acCurrentValueRange${device.hutId}${device.deviceId}${n}Min`] || null,
+                                channelValueRange2: deviceData[`acCurrentValueRange${device.hutId}${device.deviceId}${n}Max`] || null,
                                 channelUnit: "A",
-                                channelsParameter: deviceData['acCurrentChannelsParameter' + device.hutId + device.deviceid + (index + 1)] || "",
+                                channelsParameter: deviceData[`acCurrentChannelsParameter${device.hutId}${device.deviceId}${n}`] || "",
                             };
 
                             dataToSend.acCurrentTable.push(channelData);
@@ -793,9 +829,9 @@ export default {
                                 deviceId: device.deviceid,
                                 deviceName: device.name,
                                 channels: `CH${n}`, // Convert channel number to string
-                                gearType: device[`digitalInputGears${n}`] || "Digital Input",
-                                channelsParameter: device[`digitalInputParam${n}`] || "Digital Parameter",
-                                channelValue: device[`digitalInputValue${n}`] !== '' ? device[`digitalInputValue${n}`] : null, // Send as true/false/null
+                                gearType: deviceData[`digitalInputGears${device.hutId}${device.deviceId}${n}`],
+                                channelsParameter: deviceData[`digitalInputParam${device.hutId}${device.deviceId}${n}`],
+                                channelValue: deviceData[`digitalInputValue${device.hutId}${device.deviceId}${n}`] !== '' ? device[`digitalInputValue${device.hutId}${device.deviceId}${n}`] : null, // Send as true/false/null
                             };
 
                             // Push each channel as a separate object

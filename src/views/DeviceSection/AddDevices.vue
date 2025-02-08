@@ -114,7 +114,7 @@
                                     <p><strong>Device Name:</strong> {{ device.name }}</p>
 
 
-                                    <div v-if="device.devicetype === 'AC Volt'" class="ac-voltage-content">
+                                    <div v-if="device.devicetype === 'Ac Voltage'" class="ac-voltage-content">
                                         <div class="d-flex align-items-center" v-for="n in 2" :key="'ac-voltage-' + n">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
@@ -152,7 +152,7 @@
                                     </div>
 
 
-                                    <div v-if="device.devicetype === 'AC Current'" class="ac-current-content">
+                                    <div v-if="device.devicetype === 'Ac Current'" class="ac-current-content">
                                         <div class="d-flex align-items-center" v-for="n in 6" :key="'ac-current-' + n">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3"></b-form-group>
@@ -188,7 +188,7 @@
                                     </div>
 
 
-                                    <div v-if="device.devicetype === 'DC Volt'" class="dc-voltage-content">
+                                    <div v-if="device.devicetype === 'Dc Voltage'" class="dc-voltage-content">
                                         <div class="d-flex align-items-center" v-for="n in 2" :key="'dc-voltage-' + n">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n" class="mb-3 mr-3"></b-form-group>
@@ -219,7 +219,7 @@
                                         </div>
                                     </div>
 
-                                    <div v-if="device.devicetype === 'DC Current'" class="dc-current-content">
+                                    <div v-if="device.devicetype === 'Dc Current'" class="dc-current-content">
                                         <div v-for="n in 6" :key="'dc-current-' + n" class="d-flex align-items-center">
                                             <b-form-group :label="'Channels'" class="mb-3 mr-3 padding_bottom">
                                                 <b-form-group :label="'CH-' + n + ':'" class="mb-3 mr-3"></b-form-group>
@@ -292,133 +292,8 @@
 
     </main>
 </template>
-
-<!-- <script>
-export default {
-    data() {
-        return {
-            acVoltageVisible: false,
-            isAcCurrentVisible: false,
-            isDcVoltVisible: false,
-            isDcCurrentVisible: false,
-            isDigIpVisible: false,
-            selectedMaster: null,
-            masterOptions: ["IMEI", "MAC"],
-            masterInput: '',
-
-            // Station Information
-            stationCode: '',
-            location: '',
-            name: '',
-            deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
-
-            // HUT Data
-            huts: [{
-                name: 'HUT 1',
-                param: '',
-
-                acVoltageGears: null,
-                acVoltageInput: '',
-                acVoltageGears2: null,
-                acVoltageInput2: '',
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(''),
-                dcVoltGears: null,
-                dcVoltInput: '',
-                dcVoltGears2: null,
-                dcVoltInput2: '',
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(''),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(''),
-                showDetails: false
-            }],
-
-            // Parameter Options
-            DeviceType: [
-                { value: null, text: "Select Device Type" },
-                "Ac Voltage", "Ac Current", "DC Volt", "Dc Current", "Digital Input"
-            ],
-            gearOptions: [
-                { value: null, text: "Select Gears" },
-                "Signals",
-                "Points",
-                "DC Track Circuits",
-                "Axle Counters",
-                "AF Track Circuits",
-                "Level Crossing Gates",
-                "Relays",
-                "Electronic Interlocking",
-                "Integrated Power Supply (IPS) / Battery Charger",
-                "Earth Leakage Detector (ELD)",
-                "Cables",
-                "Block Instruments",
-                "UFSBI",
-                "Ambient Temperature and Humidity",
-            ],
-        };
-    },
-    methods: {
-        addHut() {
-            const hutCount = this.huts.length + 1;
-            const newHut = {
-                name: `HUT ${hutCount}`,
-                param: '',
-                devicetype: null,
-                acVoltageGears: null,
-                acVoltageInput: '',
-                acVoltageGears2: null,
-                acVoltageInput2: '',
-                acCurrentGears: Array(6).fill(null),
-                acCurrentInput: Array(6).fill(''),
-                dcVoltGears: null,
-                dcVoltInput: '',
-                dcVoltGears2: null,
-                dcVoltInput2: '',
-                dcCurrentGears: Array(6).fill(null),
-                dcCurrentInput: Array(6).fill(''),
-                digIpGears: Array(16).fill(null),
-                digIpInputs: Array(16).fill(''),
-                showDetails: false
-            };
-            this.huts.push(newHut);
-        },
-        deleteHut(index) {
-            this.huts.splice(index, 1);
-        },
-        toggleHutDetails(index) {
-            this.huts[index].showDetails = !this.huts[index].showDetails;
-        },
-        toggleACVoltageDetails() {
-            this.acVoltageVisible = !this.acVoltageVisible;
-        },
-        addDeviceRow(index) {
-            // Add a new device row to the current hut (at the given index)
-            this.huts[index].deviceNames.push({ name: '', parameter: '' });
-        },
-        removeDeviceRow(hutIndex, deviceIndex) {
-            // Remove the device row at the given deviceIndex for the given hutIndex
-            this.huts[hutIndex].deviceNames.splice(deviceIndex, 1);
-        },
-        addDeviceRow() {
-            this.deviceNames.push({ name: '', parameter: '' });
-        },
-
-        // Remove a device row
-        removeDeviceRow(deviceIndex) {
-            if (this.deviceNames.length > 1) {
-                this.deviceNames.splice(deviceIndex, 1);
-            } else {
-                console.error("Cannot remove the last row");
-            }
-        },
-    }
-};
-
-</script> -->
-
 <script>
-import { useToast } from 'vue-toast-notification';
+import { useToast } from 'vue-toastification';
 import ApiGatewayServies from '../../Services/ApiGatewayServies';
 export default {
 
@@ -458,29 +333,9 @@ export default {
             name: '',
             jsonData: '',
             deviceNames: [{ name: '', parameter: '' }], // Initialize with one row
-            // huts: [{
-            //     name: 'HUT 1',
-            //     param: '',
-            //     acVoltageVisible: false,
-            //     acVoltageGears: null,
-            //     acVoltageInput: '',
-            //     acVoltageGears2: null,
-            //     acVoltageInput2: '',
-            //     acCurrentGears: Array(6).fill(null),
-            //     acCurrentInput: Array(6).fill(''),
-            //     dcVoltGears: null,
-            //     dcVoltInput: '',
-            //     dcVoltGears2: null,
-            //     dcVoltInput2: '',
-            //     dcCurrentGears: Array(6).fill(null),
-            //     dcCurrentInput: Array(6).fill(''),
-            //     digIpGears: Array(16).fill(null),
-            //     digIpInputs: Array(16).fill(''),
-            //     showDetails: false
-            // }],
             DeviceType: [
                 { value: '', text: "Select Device Type" },
-                "AC Volt", "AC Current", "DC Volt", "DC Current", "Digital Input"
+                "Ac Voltage", "Ac Current", "Dc Voltage", "Dc Current", "Digital Input"
             ],
             gearOptions: [
                 { value: '', text: "Select Gears" },
@@ -567,16 +422,19 @@ export default {
             this.huts.forEach((hut) => {
                 hut.devices.forEach((device) => {
                     console.log("Device Type:", device.devicetype);
-                    if (device.devicetype === "AC Volt") {
+                    const hutId = `6.${hut.param}`;
+                    const ACVoltDeviceId = `2.${device.deviceid}`;
+                    if (device.devicetype === "Ac Voltage") {
                         for (let n = 1; n <= 2; n++) {
                             const channelData = {
-                                sno: 0,  
+                                sno: 0,
                                 imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
+                                hutId: hutId,
+                                deviceId: ACVoltDeviceId,
+                                deviceType: device.devicetype,
                                 deviceName: device.name,
                                 channels: `CH${n}`,
-                                gearType: device[`acVoltageGears${n}`] || "AC Volt",  // Default value if not set
+                                gearType: device[`acVoltageGears${n}`],  // Default value if not set
                                 channelValueRange1: device[`acVoltageValueRange${n}Min`] || null,  // Min value
                                 channelValueRange2: device[`acVoltageValueRange${n}Max`] || null,  // Max value
                                 channelUnit: "V",  // Voltage unit
@@ -586,14 +444,14 @@ export default {
                             dataToSend.acVoltageTable.push(channelData);
                         }
                     }
-                    else if (device.devicetype === "DC Volt") {
+                    else if (device.devicetype === "Dc Voltage") {
                         const channelData = [];
 
                         for (let n = 1; n <= 2; n++) {
                             const channel = {
                                 channelNumber: String(n),
-                                gearType: "DC Voltage",
-                                channelsParameter: "Voltage Parameter",
+                                gearType: device[`dcVoltageGears${n}`],
+                                channelsParameter: device[`dcVoltageInput${n}`],
                                 channelValueRange1: device[`dcVoltageValueRange${n}Min`],
                                 channelValueRange2: device[`dcVoltageValueRange${n}Max`],
                                 channelUnit: "V",
@@ -603,13 +461,16 @@ export default {
                             channelData.push(channel);
                         }
 
+                        const hutId = `6.${hut.param}`;
+                        const DCVoltDeviceId = `3.${device.deviceid}`;
                         channelData.forEach(channel => {
                             dataToSend.dcVoltageTables.push({
                                 sno: 0,
                                 imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
+                                hutId: hutId,
+                                deviceId: DCVoltDeviceId,
                                 deviceName: device.name,
+                                deviceType: device.devicetype,
                                 channels: channel.channelNumber,
                                 gearType: channel.gearType,
                                 channelsParameter: channel.channelsParameter,
@@ -620,16 +481,18 @@ export default {
                             });
                         });
                     }
-                    else if (device.devicetype === "DC Current") {
+                    else if (device.devicetype === "Dc Current") {
+                        const hutId = `6.${hut.param}`;
+                        const DCCurrentDeviceId = `5.${device.deviceid}`;
                         for (let n = 1; n <= 6; n++) {
                             const channelData = {
                                 sno: 0,
                                 imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
+                                hutId: hutId,
+                                deviceId: DCCurrentDeviceId,
                                 deviceName: device.name,
                                 channels: `CH${n}`,
-                                gearType: device[`dcCurrentGears${hut.name}${n}`] || "DC Current",
+                                gearType: device[`dcCurrentGears${hut.name}${n}`] || "Dc Current",
                                 channelValueRange1: device[`dcCurrentValueRange${hut.name}${n}Min`] || null,
                                 channelValueRange2: device[`dcCurrentValueRange${hut.name}${n}Max`] || null,
                                 channelUnit: "A",
@@ -640,17 +503,19 @@ export default {
                         }
                     }
 
-                    else if (device.devicetype === "AC Current") {
+                    else if (device.devicetype === "Ac Current") {
+                        const ACCurrentDeviceId = `4.${device.deviceid}`;
                         for (let n = 1; n <= 6; n++) {
-                            // Create a separate object for each channe
+                            const hutId = `6.${hut.param}`;
                             const channelData = {
                                 sno: 0,
                                 imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
+                                hutId: hutId,
+                                deviceId: ACCurrentDeviceId,
                                 deviceName: device.name,
+                                deviceType: device.devicetype,
                                 channels: `CH${n}`,
-                                gearType: device[`acCurrentGears${n}`] || "AC Current",
+                                gearType: device[`acCurrentGears${n}`] || "Ac Current",
                                 // channelsParameter: "Current Parameter",
                                 channelValueRange1: device[`acCurrentValueRange${n}Min`] || null,
                                 channelValueRange2: device[`acCurrentValueRange${n}Max`] || null,
@@ -662,13 +527,16 @@ export default {
                         }
                     }
                     else if (device.devicetype === "Digital Input") {
+                        const hutId = `6.${hut.param}`;
+                        const DigitalInputDeviceId = `1.${device.deviceid}`;
                         for (let n = 1; n <= 16; n++) {
                             const channelData = {
                                 sno: 0,
                                 imeiMac: this.masterInput,
-                                hutId: hut.param,
-                                deviceId: device.deviceid,
+                                hutId: hutId,
+                                deviceId: DigitalInputDeviceId,
                                 deviceName: device.name,
+                                deviceType: device.devicetype,
                                 channels: `CH${n}`, // Convert channel number to string
                                 gearType: device[`digitalInputGears${n}`] || "Digital Input",
                                 channelsParameter: device[`digitalInputParam${n}`] || "Digital Parameter",
@@ -701,12 +569,18 @@ export default {
                     },
                 });
 
-                toast.success(response.data || 'HUT Data submitted successfully!');
+                toast.success('HUT Data submitted successfully!', {
+                    timeout: 2000,
+                });
                 // Optionally reset form here if needed
-                this.resetForm();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                // this.resetForm(); 
             } catch (error) {
                 console.error('Error:', error);
                 toast.error(error.response?.data || 'An unexpected error occurred while saving HUT data.');
+                toast.error(errorMessage);
             } finally {
                 this.loading = false;
             }
@@ -736,6 +610,7 @@ export default {
         toggleACVoltageDetails(index) {
             this.huts[index].acVoltageVisible = !this.huts[index].acVoltageVisible;
         },
+
         // addDeviceRow(hutName) {
         //     // Find the hut by name
         //     const hut = this.huts.find(h => h.name === hutName);
@@ -781,8 +656,17 @@ export default {
 
         removeDeviceRow(hutId, deviceIndex) {
             const hut = this.huts.find((h) => h.hutId === hutId);
-            hut.devices.splice(deviceIndex, 1);
+            const toast = useToast();
+            // Prevent removing the last device row
+            if (hut.devices.length > 1) {
+                hut.devices.splice(deviceIndex, 1);
+            } else {
+                toast.error("Cannot remove the last device row!", {
+                    timeout: 1000,
+                });
+            }
         },
+
         toggleDeviceDetails(hutId, index) {
             const hut = this.huts.find((h) => h.hutId === hutId);
             hut.devices[index].detailsVisible = !hut.devices[index].detailsVisible;

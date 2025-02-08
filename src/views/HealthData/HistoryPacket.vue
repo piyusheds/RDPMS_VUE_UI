@@ -2,7 +2,7 @@
     <main style="padding-top:10px;">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-center text-primary">History Data</h2>
+                <h2 class="text-center text-primary">Health History Data</h2>
             </div>
         </div>
 
@@ -22,6 +22,7 @@
         <ag-grid-vue :columnDefs="columnDefs" :rowData="rowData" :pagination="true" :enableSorting="true"
             :enableFilter="true" :enableColResize="true" :paginationPageSize="10" class="ag-theme-alpine"
             :domLayout="'autoHeight'" @first-data-rendered="onFirstDataRendered"></ag-grid-vue>
+
     </main>
 </template>
 
@@ -30,7 +31,7 @@ import ApiGatewayServies from '../../Services/ApiGatewayServies';
 import { AgGridVue } from '@ag-grid-community/vue3';
 import '@ag-grid-community/styles/ag-grid.css'
 import '@ag-grid-community/styles/ag-theme-alpine.css'
-import { useToast } from 'vue-toastification';
+
 
 export default {
     name: 'App',
@@ -43,10 +44,7 @@ export default {
             selectedImei: '',
             tableData: [],
             loading: false,
-            currentPage: 1,
-            itemsPerPage: 10, // Show 10 items per page
             selectedDeviceType: "",
-            deviceTypeOrder: ["Digital Input", "Ac Voltage", "Ac Current", "Dc Voltage", "Dc Current"], // Predefined order
 
             loading: true,
             currentPage: 1,
@@ -57,7 +55,6 @@ export default {
                 {
                     headerName: 'Hut ID',
                     field: 'hutId',
-                    width: 100,
                     tooltipField: 'hutId',
                     sortable: true,
                     filter: 'agTextColumnFilter', // Enable text filtering for this column
@@ -67,53 +64,23 @@ export default {
                         debounceMs: 500,     // Delay for filter input (in milliseconds)
                     },
                 },
-                { headerName: 'Device ID', field: 'deviceId', width: 100, tooltipField: 'deviceId', sortable: true, filter: true, floatingFilter: true },
-                { headerName: 'Channel ID', field: 'channalId', width: 100, tooltipField: 'channalId', sortable: true, filter: true, floatingFilter: true },
-                { headerName: 'Device Type', field: 'deviceType', width: 140, tooltipField: 'deviceType', sortable: true, filter: true, floatingFilter: true },
-                {
-                    headerName: 'Gear Type',
-                    field: 'gearType',
-                    width: 250,
-                    valueGetter: (params) => {
-                        return params.data.gearType && Array.isArray(params.data.gearType)
-                            ? params.data.gearType.map(item => item.gearType).join(', ')
-                            : params.data.gearType && typeof params.data.gearType === 'object'
-                                ? params.data.gearType.gearType
-                                : 'N/A';
-                    },
-                    tooltipValueGetter: (params) => {
-                        return params.data.gearType && Array.isArray(params.data.gearType)
-                            ? params.data.gearType.map(item => item.gearType).join(', ')
-                            : params.data.gearType && typeof params.data.gearType === 'object'
-                                ? params.data.gearType.gearType
-                                : 'N/A';
-                    },
-                    sortable: true,
-                    filter: true,
-                    floatingFilter: true, // Add floating filter
-                },
+                { headerName: 'Device ID', field: 'deviceId', tooltipField: 'deviceId', sortable: true, filter: true, floatingFilter: true },
+                { headerName: 'Device Type', field: 'deviceType', tooltipField: 'deviceType', sortable: true, filter: true, floatingFilter: true },
 
                 {
                     headerName: 'Date',
                     field: 'timeStamp',
                     valueFormatter: (params) => this.formatDate(params.value) || 'N/A', // Format the displayed value
                     sortable: true,
-                    width: 130,
                     filter: 'agDateColumnFilter',  // Use the date filter
                     floatingFilter: true,
                     filterParams: {
                         clearButton: true,
-                        debounceMs: 500,
                         inRangeInclusive: true,
                         comparator: (filterLocalDateAtMidnight, cellValue) => {
-                            // Convert the cell's epoch timestamp to a Date object
                             const cellDate = new Date(cellValue * 1000); // *1000 because JavaScript expects milliseconds
-
-                            // Strip time from the Date objects by setting hours, minutes, seconds, and milliseconds to 0
                             const strippedCellDate = new Date(cellDate.getFullYear(), cellDate.getMonth(), cellDate.getDate());
                             const strippedFilterDate = new Date(filterLocalDateAtMidnight.getFullYear(), filterLocalDateAtMidnight.getMonth(), filterLocalDateAtMidnight.getDate());
-
-                            // Compare the stripped dates (ignoring time) by comparing their epoch time (milliseconds)
                             if (strippedCellDate.getTime() < strippedFilterDate.getTime()) {
                                 return -1;  // Cell date is earlier, so it goes before
                             } else if (strippedCellDate.getTime() > strippedFilterDate.getTime()) {
@@ -128,7 +95,6 @@ export default {
                     headerName: 'Timestamp',
                     field: 'timeStamp',
                     valueFormatter: (params) => this.formatTimestamp(params.value),
-                    width: 130,
                     tooltipValueGetter: (params) => {
                         const timestamp = params.value;
                         if (!timestamp || isNaN(timestamp)) return 'Invalid Date';
@@ -139,29 +105,26 @@ export default {
                     filter: true,
                     floatingFilter: true, // Add floating filter
                 },
-                { headerName: 'Value', field: 'value', width: 100, tooltipField: 'value', sortable: true, filter: true, floatingFilter: true },
+
                 {
                     headerName: 'Status',
-                    field: 'value',
-                    width: 150,
-                    cellRenderer: (params) => {
-                        const item = params.data;
-                        const { status, statusClass } = this.getStatus(item);
-                        return `<span class="status-btn ${statusClass}">${status}</span>`;
-                    },
-                    tooltipValueGetter: (params) => {
-                        const item = params.data;
-                        const { status } = this.getStatus(item);
-                        return `Status: ${status}`;
-                    },
+                    field: 'status',
+                    tooltipField: 'status',
                     sortable: true,
                     filter: true,
-                    floatingFilter: true, // Add floating filter
-                },
+                    floatingFilter: true,
+                    cellRenderer: function (params) {
+                        const status = params.value;
+                        const btnClass = status === true ? 'btn-green' : 'btn-red';
+                        const text = status === true ? 'Pass' : 'Fail';
+                        return `
+                         <span class=" ${btnClass}" style="padding: 6px 10px; border-radius: 8px;">${text}</span>`;
+                    }
+                }
             ],
 
             gridOptions: {
-                enableBrowserTooltips: true, 
+                enableBrowserTooltips: true,
                 rowSelection: 'single',
                 pagination: true,
                 paginationPageSize: 10,
@@ -180,11 +143,17 @@ export default {
                 this.fetchTableData();
             }
         },
+        // selectedImei(newVal) {
+        //     if (!newVal) {
+        //         // Reset other filters when IMEI is cleared
+        //         this.selectedDeviceType = '';
+        //         this.selectedStatus = '';
+        //         this.searchQuery = '';
+        //     }
+        // }
     },
     methods: {
         async fetchImeiList() {
-            const toast = useToast();  // Initialize toast
-
             try {
                 this.loading = true;
 
@@ -203,23 +172,21 @@ export default {
                 this.imeiList = response.data;
             } catch (error) {
                 console.error('Error fetching IMEI list:', error);
-                toast.error(`Error fetching IMEI list: ${error.message}`);  // Show toast error
             } finally {
                 this.loading = false;
             }
         },
 
         async fetchTableData() {
-            const toast = useToast();  // Initialize toast
-
             if (!this.selectedImei) return;
 
             try {
                 const token = localStorage.getItem('authToken');
                 if (!token) throw new Error('Authentication token is missing.');
 
-                let url = `IotDeviceData/HistoryDeviceAlertByImeiMac?imeiMac=${this.selectedImei}`;
+                let url = `IotDeviceData/HistoryDeviceHealthByImeiMac?imeiMac=${this.selectedImei}`;
 
+                // Add device type condition if applicable
                 if (this.selectedDeviceType !== 'All') {
                     url += `&deviceType=${this.selectedDeviceType}`;
                 }
@@ -231,28 +198,29 @@ export default {
                     },
                 });
 
+                // Check for valid response
                 const newData = response.data || [];
+
                 if (newData.length > 0) {
+                    // Append the new data to existing rowData
                     this.rowData = [...newData];
+                    console.log("Appended data to rowData", this.rowData);
                 } else {
                     console.log("No new data to append");
                 }
             } catch (error) {
                 console.error('Error fetching table data:', error);
-                toast.error(`Error fetching table data: ${error.message}`);  // Show toast error
             }
-        },
+        }
+        ,
 
 
         async onImeiChange() {
-            const toast = useToast();  // Initialize toast
-
             try {
                 if (!this.selectedImei) return;
                 await this.fetchTableData();
             } catch (error) {
                 console.error('Error handling IMEI change:', error);
-                toast.error(`Error handling IMEI change: ${error.message}`);  // Show toast error
             }
         },
 
@@ -310,43 +278,43 @@ export default {
         }
         ,
 
-        getStatus(item) {
-            if (item.deviceType === 'Digital Input') {
-                const status = item.value === "1" ? 'Active' : 'Inactive';
-                const statusClass = item.value === "1" ? 'btn-green' : 'btn-red';
-                return { status, statusClass };
-            }
+        // getStatus(item) {
+        //     if (item.deviceType === 'Digital Input') {
+        //         const status = item.value === "1" ? 'Active' : 'Inactive';
+        //         const statusClass = item.value === "1" ? 'btn-green' : 'btn-red';
+        //         return { status, statusClass };
+        //     }
 
-            if (item.deviceType === "Ac Current" || item.deviceType === "Dc Current") {
-                const value = item.value;
-                const range1 = item.gearType.channelValueRange1;
-                const range2 = item.gearType.channelValueRange2;
+        //     if (item.deviceType === "Ac Current" || item.deviceType === "Dc Current") {
+        //         const value = item.value;
+        //         const range1 = item.gearType.channelValueRange1;
+        //         const range2 = item.gearType.channelValueRange2;
 
-                if (value < range1) {
-                    return { status: 'Low Current', statusClass: 'btn-gray' };
-                } else if (value >= range1 && value <= range2) {
-                    return { status: 'Normal Current', statusClass: 'btn-green' };
-                } else if (value > range2) {
-                    return { status: 'High Current', statusClass: 'btn-red' };
-                }
-            }
+        //         if (value < range1) {
+        //             return { status: 'Low Current', statusClass: 'btn-gray' };
+        //         } else if (value >= range1 && value <= range2) {
+        //             return { status: 'Normal Current', statusClass: 'btn-green' };
+        //         } else if (value > range2) {
+        //             return { status: 'High Current', statusClass: 'btn-red' };
+        //         }
+        //     }
 
-            if (item.deviceType === "Ac Voltage" || item.deviceType === "Dc Voltage") {
-                const value = item.value;
-                const range1 = item.gearType.channelValueRange1;
-                const range2 = item.gearType.channelValueRange2;
+        //     if (item.deviceType === "Ac Voltage" || item.deviceType === "Dc Voltage") {
+        //         const value = item.value;
+        //         const range1 = item.gearType.channelValueRange1;
+        //         const range2 = item.gearType.channelValueRange2;
 
-                if (value < range1) {
-                    return { status: 'Low Voltage', statusClass: 'btn-gray' };
-                } else if (value >= range1 && value <= range2) {
-                    return { status: 'Normal Voltage', statusClass: 'btn-green' };
-                } else if (value > range2) {
-                    return { status: 'High Voltage', statusClass: 'btn-red' };
-                }
-            }
+        //         if (value < range1) {
+        //             return { status: 'Low Voltage', statusClass: 'btn-gray' };
+        //         } else if (value >= range1 && value <= range2) {
+        //             return { status: 'Normal Voltage', statusClass: 'btn-green' };
+        //         } else if (value > range2) {
+        //             return { status: 'High Voltage', statusClass: 'btn-red' };
+        //         }
+        //     }
 
-            return { status: 'N/A', statusClass: 'btn-gray' };
-        }
+        //     return { status: 'N/A', statusClass: 'btn-gray' };
+        // }
     },
 };
 </script>
@@ -459,5 +427,15 @@ export default {
 .custom-select:focus {
     border-color: #66afe9;
     box-shadow: 0 0 3px rgba(102, 175, 233, .6);
+}
+
+:deep(.btn-green) {
+    background-color: rgba(62, 185, 95, 0.1) !important;
+    color: #3eb95f !important;
+}
+
+:deep(.btn-red) {
+    background-color: rgba(231, 75, 43, 0.1) !important;
+    color: #e74b2b !important;
 }
 </style>

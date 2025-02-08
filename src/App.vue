@@ -8,14 +8,16 @@
 			</div>
 		</div>
 
-		<Sign v-if="!showLayout" @signedIn="onSignedIn" />
+		<!-- <Sign v-if="!showLayout" @signedIn="onSignedIn" /> -->
+		 <login v-if="!showLayout" @signedIn="onSignedIn" />
+		 <!-- <login></login> -->
 	</div>
 </template>
 
 <script setup>
 import Sidebar from './components/Sidebar.vue';
 import Navbar from './components/Navbar.vue';
-import Sign from './components/Sign.vue';
+import Login from './views/SignIn/Login.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import LoginService from './Services/LoginService';
@@ -37,7 +39,7 @@ onMounted(() => {
     }
   } else {
     showLayout.value = false; // Show Sign-In page if not authenticated
-    router.replace('/sign'); // Redirect to Sign-In
+    router.replace('/login'); // Redirect to Sign-In
   }
 });
 
@@ -56,7 +58,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     // Redirect to the sign-in page if not authenticated
-    next({ name: 'sign' });
+    next({ name: 'login' });
   } else {
     // Store the route in `localStorage` only if authenticated and route changes
     if (isAuthenticated && to.fullPath !== localStorage.getItem('currentRoute')) {
@@ -85,9 +87,9 @@ router.beforeEach((to, from, next) => {
 	font-family: 'Fira sans', sans-serif;
 }
 
-body {
-	background: var(--light);
-}
+// body {
+// 	background: var(--light);
+// }
 
 button {
 	cursor: pointer;
@@ -104,7 +106,7 @@ button {
 main {
 	flex: 1 1 0;
 	padding: 2rem;
-	padding-left: 17.5%;
+	padding-left: 19.5%;
 	padding-right: 20px;
 
 	@media (max-width: 1024px) {

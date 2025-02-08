@@ -54,8 +54,9 @@
                                 <!-- Confirm Password Row -->
                                 <div class="col-md-6 position-relative">
                                     <div class="form-floating">
-                                        <input v-model="formData.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'"
-                                            class="form-control" id="confirmPassword" placeholder="Confirm Password" required />
+                                        <input v-model="formData.confirmPassword"
+                                            :type="showConfirmPassword ? 'text' : 'password'" class="form-control"
+                                            id="confirmPassword" placeholder="Confirm Password" required />
                                         <label for="confirmPassword">Confirm Password</label>
                                         <button type="button"
                                             class="btn position-absolute end-0 top-50 translate-middle-y me-2"
@@ -72,9 +73,12 @@
                                     <button type="submit" class="btn btn-primary w-100 py-3">
                                         {{ showNewPassword ? 'Reset Password' : 'Send Token' }}
                                     </button>
+
+
                                 </div>
                             </div>
                         </form>
+                        <button @click="showTestToast">Test Toast</button>
                     </div>
                 </div>
             </div>
@@ -100,9 +104,18 @@
 
 <script>
 import ApiGatewayServies from '../Services/ApiGatewayServies';
+// // import { useToast } from 'vue-toastification';
 import { useToast } from 'vue-toastification';
-
 export default {
+    setup() {
+        const toast = useToast();
+
+        const showTestToast = () => {
+            toast.success('This is a test toast!');
+        };
+
+        return { showTestToast };
+    },
     data() {
         return {
             formData: {
@@ -119,8 +132,9 @@ export default {
         };
     },
     methods: {
+
         async submitForm() {
-            const toast = useToast();
+            // const toast = useToast();
             this.loading = true;
 
             try {

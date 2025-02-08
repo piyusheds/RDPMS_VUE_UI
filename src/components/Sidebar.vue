@@ -7,8 +7,8 @@
 				</a>
 				<div class="d-flex align-items-center ms-4 mb-4">
 					<div class="position-relative">
-						<img class="rounded-circle" src="src/assets/train_icon.png" alt=""
-							style="width: 40px; height: 40px;">
+						<img class="rounded-circle" :src="trainIcon" alt="" style="width: 40px; height: 40px;">
+
 						<div
 							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
 						</div>
@@ -24,30 +24,91 @@
 						<i class="fa fa-tachometer-alt me-2"></i>Dashboard
 					</RouterLink>
 
-					<!-- Live Data Icon -->
-					<RouterLink to="/LiveData" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-signal me-2"></i>Live Data
-					</RouterLink>
+					<div class="nav-item">
+						<a href="#" class="nav-link" id="liveDataDropdown" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false" @click="toggleDropdown">
+							<i class="fa fa-bell me-2"></i>Alert Data
+							<i :class="dropdownOpen ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="ms-2" style="margin-left: 22px !important;"></i>
+						</a>
+						<div class="dropdown-menu no-bg-menu" aria-labelledby="liveDataDropdown">
+							<RouterLink to="/LiveData" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-bolt me-2"></i>Real-Time Data
+							</RouterLink>
+							<RouterLink to="/HistoryData" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-clock me-2"></i>History Data
+							</RouterLink>
+						</div>
+					</div>
 
-					<!-- History Data Icon -->
-					<RouterLink to="/HistoryData" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-history me-2"></i>History Data
-					</RouterLink>
+					<div class="nav-item dropdown">
+						<a href="#" class="nav-link" id="liveDataDropdown" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false" @click="healthtoggleDropdown">
+							<i class="fa fa-heartbeat me-2"></i>Health Data
+							<i :class="healthdropdownOpen ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="ms-2"></i>
+						</a>
+						<div class="dropdown-menu no-bg-menu" aria-labelledby="liveDataDropdown">
+							<RouterLink to="/LivePacket" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-wave-square me-2"></i>Real-Time Data
+							</RouterLink>
+							<RouterLink to="/HistoryPacket" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-history me-2"></i>History Data
+							</RouterLink>
+						</div>
+					</div>
 
-					<!-- Signal Icon -->
-					<RouterLink to="/about" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-traffic-light me-2"></i>Signal
-					</RouterLink>
 
+
+
+					<div class="nav-item">
+						<a href="#" class="nav-link" id="liveDataDropdown" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false" @click="graphtoggleDropdown">
+							<i class="fas fa-chart-line" aria-label="Graphs & Values"></i> Graphs
+							<i :class="graphdropdownOpen ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="ms-2" style="margin-left: 45px !important;"></i>
+						</a>
+						<div class="dropdown-menu no-bg-menu" aria-labelledby="liveDataDropdown">
+							<RouterLink to="/AcVoltageGraph" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-wave-square" aria-label="AC Voltage Graph"></i> Ac Voltage
+							</RouterLink>
+
+							<RouterLink to="/AcCurrentGraph" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fa fa-water" aria-label="AC Current Graph"></i> Ac Current
+							</RouterLink>
+							<RouterLink to="/DcVoltageGraph" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fas fa-bolt" aria-label="DC Voltage Graph"></i> Dc Voltage
+							</RouterLink>
+							<RouterLink to="/DcCurrentGraph" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fas fa-long-arrow-alt-right" aria-label="DC Current Graph"></i> Dc Current
+							</RouterLink>
+							<RouterLink to="/DigitalInput" class="nav-item nav-link no-bg-item" active-class="active"
+								@click.stop>
+								<i class="fas fa-toggle-on" aria-label="Digital Input"></i> Digital Input
+							</RouterLink>
+						</div>
+					</div>
+
+
+					<!-- <RouterLink to="/GraphChart" class="nav-item nav-link" active-class="active">
+						<i class="fa fa-chart-line me-2"></i>Graphs
+					</RouterLink> -->
 					<!-- Add Device Icon -->
 					<RouterLink to="/AddDeviceTable" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-cogs me-2"></i>Add Device
+						<i class="fa fa-cogs me-2"></i>Device Management
 					</RouterLink>
-
+					
 					<!-- User Table Icon -->
 					<RouterLink to="/UserTable" class="nav-item nav-link" active-class="active">
-						<i class="fa fa-user-friends me-2"></i>User Table
+						<i class="fa fa-user-friends me-2"></i>User Management
 					</RouterLink>
+
+
 
 					<!-- Forget Icon -->
 					<RouterLink to="/forget" class="nav-item nav-link" active-class="active">
@@ -55,7 +116,7 @@
 					</RouterLink>
 
 					<!-- Logout -->
-					<a @click="logout" class="nav-item nav-link">
+					<a @click="logout" class="nav-item nav-link" style="cursor: pointer;">
 						<i class="fa fa-sign-out-alt me-2"></i>Logout
 					</a>
 				</div>
@@ -67,6 +128,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import trainIcon from '/assets/train_icon.png';
+
 
 const is_expanded = ref(localStorage.getItem('is_expanded') === 'true');
 
@@ -74,6 +137,21 @@ const toggleMenu = () => {
 	is_expanded.value = !is_expanded.value;
 	localStorage.setItem('is_expanded', is_expanded.value);
 };
+const dropdownOpen = ref(true);
+const healthdropdownOpen = ref(true);
+const graphdropdownOpen = ref(true);
+
+// Method to toggle the dropdown state
+const toggleDropdown = () => {
+  dropdownOpen.value = !dropdownOpen.value;
+};
+const healthtoggleDropdown = () => {
+	healthdropdownOpen.value = !healthdropdownOpen.value;
+};
+const graphtoggleDropdown = () => {
+	graphdropdownOpen.value = !graphdropdownOpen.value;
+};
+
 onMounted(() => {
 	if (is_expanded.value) {
 		document.querySelector('.sidebar').classList.add('open');
@@ -85,7 +163,7 @@ onMounted(() => {
 const router = useRouter();
 const logout = () => {
 	localStorage.removeItem('authToken');
-	router.push('/');
+	router.push('/sign');
 	window.location.reload();
 };
 </script>
@@ -98,9 +176,9 @@ const logout = () => {
 }
 
 .nav-item.nav-link.active {
-  color: #007bff;
-  font-weight: bold;
-  text-decoration: none;
+	color: #007bff;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 .back-to-top {
@@ -166,7 +244,7 @@ const logout = () => {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 250px;
+	width: 285px;
 	height: 100vh;
 	overflow-y: auto;
 	background: var(--light);
@@ -365,5 +443,44 @@ const logout = () => {
 .testimonial-carousel .owl-dot.active {
 	background: var(--dark);
 	border-color: var(--primary);
+}
+
+/* Remove the background and border of the dropdown menu */
+.no-bg-menu {
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	box-shadow: none;
+}
+
+/* Style the dropdown items to look inline with Alert Data */
+.no-bg-item {
+	background-color: transparent;
+	padding: 0 15px;
+	color: inherit;
+	display: block;
+	font-size: 14px;
+	/* Adjust size to match the parent */
+	margin-left: 20px;
+	/* Indent to show hierarchy */
+	text-decoration: none;
+}
+
+.no-bg-item:hover {
+	color: #007bff;
+	/* Optional hover color */
+	background-color: transparent;
+	/* Prevent background on hover */
+}
+
+/* Ensure dropdown aligns vertically */
+.nav-item .dropdown-menu {
+	position: static;
+	/* Align below Alert Data */
+}
+
+.nav-item .nav-link {
+	font-size: 16px;
+	/* Adjust size for parent */
 }
 </style>

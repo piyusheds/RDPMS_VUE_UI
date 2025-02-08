@@ -131,9 +131,18 @@
                             <!-- Submit Button -->
                             <div class="row mb-4">
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-primary w-100 py-3">Sign Up</button>
+                                    <button type="submit" class="btn btn-primary w-100 py-3">Sign </button>
+
+                                    <button type="button" @click="showToast">Show Toast</button>
                                 </div>
                             </div>
+                            <div v-if="showToastMessage" class="toast-container">
+                                <div class="toast toast-success">
+                                    <span>{{ toastMessage }}</span>
+                                </div>
+                            </div>
+
+
                         </form>
 
                     </div>
@@ -167,6 +176,7 @@
 
 <script>
 import ApiGatewayServies from '../Services/ApiGatewayServies';
+import { useToast } from 'vue-toastification';
 
 export default {
     data() {
@@ -190,11 +200,14 @@ export default {
             loading: false,
             successMessage: '',
             errorMessage: '',
+            showToastMessage: false, // For manual toast visibility in this example
+            toastMessage: '',
         };
     },
     methods: {
         // Submit Form Method
         async submitForm() {
+            const toast = useToast();
             this.loading = true;
             this.successMessage = '';
             this.errorMessage = '';
@@ -211,7 +224,8 @@ export default {
                 const response = await ApiGatewayServies.post('User/register', this.formData);
 
                 // Handle success response
-                this.successMessage = 'Form submitted successfully!';
+                toast.success('Form submitted successfully!');
+                // this.successMessage = 'Form submitted successfully!';
                 console.log('Response:', response.data);
 
                 // Optionally reset form
@@ -219,6 +233,7 @@ export default {
             } catch (error) {
                 // Handle errors
                 this.errorMessage = error.response?.data?.message || 'Something went wrong!';
+                toast.error(error.response?.data?.message || 'Something went wrong!');
                 console.error('Error:', error);
             } finally {
                 this.loading = false;
@@ -248,6 +263,11 @@ export default {
                     eyeIcon.classList.add('bi-eye-slash');
                 }
             }
+        },
+
+        showToast() {
+            const toast = useToast();
+            toast.success('Toast is working!'); // You can show a toast for testing here.
         },
     },
 };
